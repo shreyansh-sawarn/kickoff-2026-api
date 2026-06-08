@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — kickoff-2026-api Admin{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Row -->
+<div class="grid-4 mb-24">
+    <div class="card">
+        <div class="card-title">Live Matches</div>
+        <div class="card-value" style="color: var(--live)">{{ match_counts.get('live', 0) }}</div>
+    </div>
+    <div class="card">
+        <div class="card-title">Scheduled</div>
+        <div class="card-value" style="color: var(--scheduled)">{{ match_counts.get('scheduled', 0) }}</div>
+    </div>
+    <div class="card">
+        <div class="card-title">Finished</div>
+        <div class="card-value" style="color: var(--finished)">{{ match_counts.get('finished', 0) }}</div>
+    </div>
+    <div class="card">
+        <div class="card-title">Total Matches</div>
+        <div class="card-value">{{ (match_counts.values() | sum) }}</div>
+    </div>
+</div>
+
+<!-- Scraper Status + Last Scrape -->
+<div class="grid-2 mb-24">
+    <div class="card">
+        <div class="card-title">Scraper Status</div>
+        <div class="flex items-center gap-8" style="margin-top: 8px;">
+            {% if scraper_running %}
+            <span class="dot dot-green"></span>
+            <span style="font-weight: 600; color: var(--success);">Running</span>
+            <span class="text-muted text-sm">— polling every {{ poll_interval }}s</span>
+            {% else %}
+            <span class="dot dot-red"></span>
+            <span style="font-weight: 600; color: var(--danger);">Stopped</span>
+            {% endif %}
+        </div>
+        <div style="margin-top: 16px;">
+            <a href="/admin/scrapers" class="btn btn-primary btn-sm">Manage Scrapers</a>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title">Last Successful Scrape</div>
+        <div style="margin-top: 8px; font-weight: 600;">
+            {% if last_scraped_at %}
+            {{ last_scraped_at.strftime('%Y-%m-%d %H:%M:%S') }} UTC
+            {% else %}
+            <span class="text-muted">No scrapes yet</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Recent Scrape Logs -->
+<div class="section-title">Recent Scrape Activity</div>
+<div class="card">
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Time (UTC)</th>
+                    <th>Source</th>
+                    <th>Page</th>
+                    <th>Status</th>
+                    <th>Changes</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in recent_logs %}
+                <tr>
+                    <td class="text-sm text-muted">{{ log.scraped_at.strftime('%H:%M:%S') }}</td>
+                    <td><span class="badge badge-scheduled">{{ log.source }}</span></td>
+                    <td class="text-sm" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        {{ log.page or '—' }}
+                    </td>
+                    <td>
+                        {% if log.success %}
+                        <span class="badge badge-success">OK</span>
+                        {% else %}
+                        <span class="badge badge-danger">Error</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ log.changes_detected }}</td>
+                    <td class="text-muted text-sm">{{ log.duration_ms or '—' }}ms</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                        No scrape logs yet. <a href="/admin/scrapers">Trigger a scrape →</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Quick Links -->
+<div class="section-title">Quick Links</div>
+<div class="flex gap-8">
+    <a href="/api/v1/matches" target="_blank" class="btn btn-primary btn-sm">GET /api/v1/matches</a>
+    <a href="/api/v1/scorers" target="_blank" class="btn btn-primary btn-sm">GET /api/v1/scorers</a>
+    <a href="/api/v1/standings" target="_blank" class="btn btn-primary btn-sm">GET /api/v1/standings</a>
+    <a href="/api/v1/health" target="_blank" class="btn btn-primary btn-sm">GET /api/v1/health</a>
+    <a href="/docs" target="_blank" class="btn btn-primary btn-sm">📖 API Docs</a>
+</div>
+{% endblock %}

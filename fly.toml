@@ -1,0 +1,20 @@
+app = "kickoff-2026-api"
+primary_region = "lax"
+
+[build]
+
+[mounts]
+  source = "wc26_data"
+  destination = "/app/data"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1

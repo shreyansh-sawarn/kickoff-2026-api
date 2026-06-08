@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Matches — kickoff-2026-api Admin{% endblock %}
+{% block page_title %}All Matches{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Match ID</th>
+                    <th>Teams</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Group/Stage</th>
+                    <th>Kickoff (UTC)</th>
+                    <th>Source</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for match in matches %}
+                <tr>
+                    <td class="text-sm text-muted" style="font-family: monospace;">{{ match.id }}</td>
+                    <td>
+                        <span style="font-weight: 600;">{{ match.home_team }}</span>
+                        <span class="text-muted"> vs </span>
+                        <span style="font-weight: 600;">{{ match.away_team }}</span>
+                    </td>
+                    <td class="score">
+                        {% if match.home_score is not none and match.away_score is not none %}
+                        {{ match.home_score }} – {{ match.away_score }}
+                        {% else %}
+                        <span class="text-muted">TBD</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge badge-{{ match.status }}">{{ match.status }}</span>
+                    </td>
+                    <td class="text-sm text-muted">{{ match.group_name or match.stage or '—' }}</td>
+                    <td class="text-sm text-muted">
+                        {% if match.kickoff_utc %}
+                        {{ match.kickoff_utc.strftime('%b %d, %H:%M') }}
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        {% if match.source %}
+                        <span class="text-sm text-muted">{{ match.source }}</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        <a href="/admin/matches/{{ match.id }}" class="btn btn-primary btn-sm">Edit</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 48px;">
+                        No matches in the database yet.<br>
+                        <a href="/admin/scrapers">Trigger a scrape</a> to populate data.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+[project]
+name = "kickoff-2026-api"
+version = "0.1.0"
+description = "Self-hosted FIFA World Cup 2026 data API"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.29.0",
+    "sqlalchemy>=2.0.0",
+    "httpx>=0.27.0",
+    "beautifulsoup4>=4.12.0",
+    "apscheduler>=3.10.0",
+    "jinja2>=3.1.0",
+    "python-dotenv>=1.0.0",
+    "python-multipart>=0.0.9",
+    "itsdangerous>=2.2.0",
+    "aiosqlite>=0.20.0",
+    "lxml>=5.2.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.27.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}{{ match.home_team }} vs {{ match.away_team }} — Admin{% endblock %}
+{% block page_title %}
+    {{ match.home_team }} <span class="text-muted">vs</span> {{ match.away_team }}
+{% endblock %}
+
+{% block content %}
+<!-- Match Overview -->
+<div class="card mb-24">
+    <div class="flex items-center justify-between mb-16">
+        <div>
+            <span class="badge badge-{{ match.status }}" style="margin-right: 8px;">{{ match.status }}</span>
+            <span class="text-muted text-sm">{{ match.group_name or match.stage }} · {{ match.venue or 'Venue TBD' }}</span>
+        </div>
+        <div class="text-muted text-sm">
+            Source: <strong>{{ match.source or 'none' }}</strong>
+            {% if match.last_scraped_at %}
+            · Last scraped: {{ match.last_scraped_at.strftime('%H:%M:%S') }} UTC
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; text-align: center; padding: 24px 0;">
+        <div>
+            <div style="font-size: 1.5rem; font-weight: 700;">{{ match.home_team }}</div>
+            <div class="text-muted text-sm">{{ match.home_team_code or '' }}</div>
+        </div>
+        <div class="score" style="font-size: 2.5rem;">
+            {% if match.home_score is not none and match.away_score is not none %}
+            {{ match.home_score }} – {{ match.away_score }}
+            {% else %}
+            vs
+            {% endif %}
+        </div>
+        <div>
+            <div style="font-size: 1.5rem; font-weight: 700;">{{ match.away_team }}</div>
+            <div class="text-muted text-sm">{{ match.away_team_code or '' }}</div>
+        </div>
+    </div>
+
+    {% if match.home_score_ht is not none %}
+    <div style="text-align: center; color: var(--text-muted); font-size: 0.875rem;">
+        HT: {{ match.home_score_ht }} – {{ match.away_score_ht }}
+    </div>
+    {% endif %}
+</div>
+
+<div class="grid-2">
+    <!-- Override Form -->
+    <div>
+        <div class="section-title">Override Match Data</div>
+        <div class="card">
+            <form method="post" action="/admin/matches/{{ match.id }}/override">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Home Score</label>
+                        <input type="number" name="home_score" value="{{ match.home_score or '' }}" min="0" max="30">
+                    </div>
+                    <div class="form-group">
+                        <label>Away Score</label>
+                        <input type="number" name="away_score" value="{{ match.away_score or '' }}" min="0" max="30">
+                    </div>
+                    <div class="form-group">
+                        <label>HT Home Score</label>
+                        <input type="number" name="home_score_ht" value="{{ match.home_score_ht or '' }}" min="0" max="20">
+                    </div>
+                    <div class="form-group">
+                        <label>HT Away Score</label>
+                        <input type="number" name="away_score_ht" value="{{ match.away_score_ht or '' }}" min="0" max="20">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Match Status</label>
+                    <select name="match_status">
+                        <option value="">— no change —</option>
+                        <option value="scheduled" {% if match.status == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                        <option value="live" {% if match.status == 'live' %}selected{% endif %}>Live</option>
+                        <option value="finished" {% if match.status == 'finished' %}selected{% endif %}>Finished</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Reason / Note</label>
+                    <textarea name="reason" rows="2" placeholder="Optional reason for override"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Apply Override</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Events List -->
+    <div>
+        <div class="section-title">Match Events ({{ events | length }})</div>
+        <div class="card">
+            {% if events %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Min</th>
+                            <th>Type</th>
+                            <th>Player</th>
+                            <th>Team</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in events %}
+                        <tr>
+                            <td style="font-weight: 600; color: var(--accent);">{{ event.minute or '—' }}'</td>
+                            <td>
+                                {% set type_icons = {
+                                    'goal': '⚽',
+                                    'own_goal': '🔴⚽',
+                                    'penalty': '🎯',
+                                    'yellow': '🟨',
+                                    'red': '🟥',
+                                    'yellow_red': '🟨🟥',
+                                    'assist': '👟',
+                                    'sub': '🔄'
+                                } %}
+                                {{ type_icons.get(event.type, '•') }} {{ event.type }}
+                            </td>
+                            <td>{{ event.player_name or '—' }}</td>
+                            <td class="text-muted text-sm">{{ event.team_code or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted text-sm" style="padding: 16px 0;">No events recorded yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Override History -->
+{% if overrides %}
+<div class="section-title" style="margin-top: 24px;">Override History</div>
+<div class="card">
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Field</th>
+                    <th>Old Value</th>
+                    <th>New Value</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in overrides %}
+                <tr>
+                    <td class="text-sm text-muted">{{ o.applied_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td><code style="font-size: 0.8rem; color: var(--accent);">{{ o.field_name }}</code></td>
+                    <td class="text-muted text-sm">{{ o.old_value or '—' }}</td>
+                    <td style="font-weight: 500;">{{ o.new_value or '—' }}</td>
+                    <td class="text-sm text-muted">{{ o.reason or '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
