@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Scrapers — kickoff-2026-api Admin{% endblock %}
+{% block page_title %}Scraper Controls{% endblock %}
+
+{% block content %}
+<!-- Scraper Status Card -->
+<div class="grid-2 mb-24">
+    <div class="card">
+        <div class="card-title">Scraper Status</div>
+        <div class="flex items-center gap-8" style="margin-top: 8px; margin-bottom: 20px;">
+            {% if scraper_running %}
+            <span class="dot dot-green"></span>
+            <span style="font-weight: 600; color: var(--success);">Running</span>
+            <span class="text-muted text-sm">— every {{ poll_interval }}s</span>
+            {% else %}
+            <span class="dot dot-red"></span>
+            <span style="font-weight: 600; color: var(--danger);">Stopped</span>
+            {% endif %}
+        </div>
+        <div class="flex gap-8">
+            <form method="post" action="/admin/scrapers/trigger">
+                <button type="submit" class="btn btn-primary">▶ Trigger Now</button>
+            </form>
+            <form method="post" action="/admin/scrapers/toggle">
+                <button type="submit" class="btn btn-danger">
+                    {% if scraper_enabled %}⏸ Disable{% else %}▶ Enable{% endif %} Scraper
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title">Poll Intervals</div>
+        <div style="margin-top: 8px;">
+            <div class="text-sm" style="margin-bottom: 6px;">
+                <span class="text-muted">Live (match in progress):</span>
+                <strong> 60s</strong>
+            </div>
+            <div class="text-sm" style="margin-bottom: 6px;">
+                <span class="text-muted">Idle (between matches):</span>
+                <strong> 300s</strong>
+            </div>
+            <div class="text-sm">
+                <span class="text-muted">Night (UTC 00:00–08:00):</span>
+                <strong> 900s</strong>
+            </div>
+        </div>
+        <div style="margin-top: 12px; font-size: 0.75rem; color: var(--text-muted);">
+            Currently using: <strong>{{ poll_interval }}s</strong>
+        </div>
+    </div>
+</div>
+
+<!-- Sources -->
+<div class="section-title">Data Sources</div>
+<div class="card mb-24">
+    <table>
+        <thead>
+            <tr>
+                <th>Source</th>
+                <th>Status</th>
+                <th>Description</th>
+                <th>Phase</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Wikipedia</strong></td>
+                <td><span class="badge badge-finished">Active</span></td>
+                <td class="text-sm text-muted">MediaWiki API — group stage summary + individual match pages</td>
+                <td class="text-sm text-muted">Phase 1</td>
+            </tr>
+            <tr>
+                <td><strong>FIFA Match Center</strong></td>
+                <td><span class="badge badge-scheduled">Planned</span></td>
+                <td class="text-sm text-muted">Secondary source for conflict detection</td>
+                <td class="text-sm text-muted">Phase 2</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Scrape Logs -->
+<div class="section-title">Recent Scrape Logs (last 50)</div>
+<div class="card">
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Time (UTC)</th>
+                    <th>Source</th>
+                    <th>Page</th>
+                    <th>Status</th>
+                    <th>Changes</th>
+                    <th>Duration</th>
+                    <th>Error</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td class="text-sm text-muted">{{ log.scraped_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td><span class="badge badge-scheduled">{{ log.source }}</span></td>
+                    <td class="text-sm" style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted);" title="{{ log.page }}">
+                        {{ log.page or '—' }}
+                    </td>
+                    <td>
+                        {% if log.success %}
+                        <span class="badge badge-success">OK</span>
+                        {% else %}
+                        <span class="badge badge-danger">Error</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ log.changes_detected }}</td>
+                    <td class="text-muted text-sm">{{ log.duration_ms or '—' }}ms</td>
+                    <td class="text-sm" style="color: var(--danger); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ log.error_message }}">
+                        {{ log.error_message or '' }}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 48px;">
+                        No scrape logs yet. Click "Trigger Now" above to run the first scrape.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

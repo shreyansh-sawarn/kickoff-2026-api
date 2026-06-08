@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Standings — kickoff-2026-api Admin{% endblock %}
+{% block page_title %}Group Standings{% endblock %}
+
+{% block content %}
+{% if groups %}
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); gap: 24px;">
+    {% for group_name, rows in groups.items() %}
+    <div class="card">
+        <div class="section-title" style="margin-bottom: 12px;">{{ group_name }}</div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Team</th>
+                        <th>P</th>
+                        <th>W</th>
+                        <th>D</th>
+                        <th>L</th>
+                        <th>GF</th>
+                        <th>GA</th>
+                        <th>GD</th>
+                        <th>Pts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <td style="color: var(--text-muted); font-size: 0.8rem;">{{ row.position or loop.index }}</td>
+                        <td>
+                            <span style="font-weight: 600;">{{ row.team_name }}</span>
+                            {% if row.team_code %}
+                            <span class="text-muted text-sm"> ({{ row.team_code }})</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ row.played }}</td>
+                        <td style="color: var(--success);">{{ row.won }}</td>
+                        <td>{{ row.drawn }}</td>
+                        <td style="color: var(--danger);">{{ row.lost }}</td>
+                        <td>{{ row.goals_for }}</td>
+                        <td>{{ row.goals_against }}</td>
+                        <td>{% if row.goal_diff > 0 %}+{% endif %}{{ row.goal_diff }}</td>
+                        <td style="font-weight: 700; color: var(--accent);">{{ row.points }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card" style="text-align: center; padding: 48px;">
+    <p class="text-muted">No standings data yet. Trigger a scrape to populate.</p>
+    <a href="/admin/scrapers" class="btn btn-primary" style="margin-top: 16px; display: inline-block;">Go to Scrapers</a>
+</div>
+{% endif %}
+{% endblock %}

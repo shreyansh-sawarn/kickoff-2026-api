@@ -1,0 +1,40 @@
+# Environment
+.env
+.env.local
+
+# Database
+data/wc26.db
+data/*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.venv/
+venv/
+env/
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# uv
+.uv/
+
+# Editor / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+scrape_logs/
+
+# Test artifacts
+.pytest_cache/
+htmlcov/
+.coverage

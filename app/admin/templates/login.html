@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — kickoff-2026-api</title>
+    <style>
+        :root {
+            --bg: #0f0f13;
+            --surface: #1a1a24;
+            --border: #2e2e3e;
+            --accent: #4f6ef7;
+            --text: #e8e8f0;
+            --text-muted: #8888a8;
+            --danger: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .logo {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        .logo-text {
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .logo-sub {
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+        }
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        input[type="password"] {
+            width: 100%;
+            background: #12121a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        input[type="password"]:focus { border-color: var(--accent); }
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: background 0.15s;
+        }
+        .btn-login:hover { background: #6b85ff; }
+        .error {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-bottom: 16px;
+        }
+        .form-group { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<div class="login-box">
+    <div class="logo">⚽</div>
+    <div class="logo-text">kickoff-2026-api</div>
+    <div class="logo-sub">Admin Dashboard</div>
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="/admin/login">
+        <div class="form-group">
+            <label for="password">Admin Password</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter admin password"
+                autofocus
+                required
+            >
+        </div>
+        <button type="submit" class="btn-login">Sign In</button>
+    </form>
+</div>
+</body>
+</html>
