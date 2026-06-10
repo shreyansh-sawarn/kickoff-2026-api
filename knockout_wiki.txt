@@ -1,0 +1,701 @@
+{{Short description|none}}
+{{Use mdy dates|date=November 2025}}
+{{Use American English|date=November 2025}}
+The '''knockout stage''' of the [[2026 FIFA World Cup]] will be the second and final stage of the competition, following the [[2026 FIFA World Cup#Group stage|group stage]]. Played from June 28 to July 19, 2026, the knockout stage will end with the [[2026 FIFA World Cup final|final]], to be held at [[MetLife Stadium]] in [[East Rutherford, New Jersey|East Rutherford]], [[New Jersey]].<ref name="match schedule">{{cite web |url=https://digitalhub.fifa.com/m/1be9ce37eb98fcc5/original/FWC26-Match-Schedule_English.pdf |title=FIFA World Cup 26 – Match Schedule |publisher=[[FIFA]] |date=February 4, 2024 |access-date=February 4, 2024}}</ref> The top two teams from each of the twelve groups, along with the [[2026 FIFA World Cup#Ranking of third-placed teams|best eight third-placed teams]], will advance to the knockout stage to compete in a [[single-elimination tournament]]. There will be 32 matches in the knockout stage, including a match for third place.<ref name="regulations">{{cite web |url=https://digitalhub.fifa.com/m/636f5c9c6f29771f/original/FWC2026_regulations_EN.pdf |title=FIFA World Cup 2026 Regulations |publisher=FIFA |date=May 2025 |access-date=June 7, 2025 |archive-date=June 23, 2025 |archive-url=https://web.archive.org/web/20250623212158/https://digitalhub.fifa.com/m/636f5c9c6f29771f/original/FWC2026_regulations_EN.pdf |url-status=live}}</ref>
+
+==Format==
+The knockout stage of the [[2026 FIFA World Cup]] will be contested between 32 teams that qualify from the group stage. Matches in the knockout stage will be played to a finish. If the score of a match is level at the end of 90 minutes of playing time, 30 minutes of [[Overtime (sports)#Association football|extra time]] will be played. If the scores were still tied, the match will be decided by a [[Penalty shoot-out (association football)|penalty shootout]].<ref name="regulations"/> All times listed are local.<ref name="match schedule"/>
+
+FIFA set out the following schedule for the round of 32:<ref name="regulations"/>
+*'''Match 73''': Runner-up Group A vs Runner-up Group B
+*'''Match 74''': Winner Group E vs Best 3rd place Group A/B/C/D/F
+*'''Match 75''': Winner Group F vs Runner-up Group C
+*'''Match 76''': Winner Group C vs Runner-up Group F
+*'''Match 77''': Winner Group I vs Best 3rd place Group C/D/F/G/H
+*'''Match 78''': Runner-up Group E vs Runner-up Group I
+*'''Match 79''': Winner Group A vs Best 3rd place Group C/E/F/H/I
+*'''Match 80''': Winner Group L vs Best 3rd place Group E/H/I/J/K
+*'''Match 81''': Winner Group D vs Best 3rd place Group B/E/F/I/J
+*'''Match 82''': Winner Group G vs Best 3rd place Group A/E/H/I/J
+*'''Match 83''': Runner-up Group K vs Runner-up Group L
+*'''Match 84''': Winner Group H vs Runner-up Group J
+*'''Match 85''': Winner Group B vs Best 3rd place Group E/F/G/I/J
+*'''Match 86''': Winner Group J vs Runner-up Group H
+*'''Match 87''': Winner Group K vs Best 3rd place Group D/E/I/J/L
+*'''Match 88''': Runner-up Group D vs Runner-up Group G
+
+===Combinations of matches in the round of 32===
+The specific matchups involving the third-placed teams depend on which eight third-placed teams qualify for the round of 32. The 495 possible combinations were published in Annex C of the tournament regulations.<ref name="regulations" />
+
+{{2026 FIFA World Cup third-place table}}
+
+==Qualified teams==
+The top two teams from each of the twelve groups, along with the eight best-ranked third-placed teams, will qualify for the knockout stage.<ref name="regulations"/>
+
+{| class="wikitable"
+|-
+! Group
+! style="width:150px" | Winners
+! style="width:150px" | Runners-up
+! style="width:150px" | Third-placed teams<br />([[2026 FIFA World Cup#Ranking of third-placed teams|Best eight]] qualify)
+|-
+! [[2026 FIFA World Cup Group A|A]]
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+|-
+! [[2026 FIFA World Cup Group B|B]]
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+|-
+! [[2026 FIFA World Cup Group C|C]]
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+|-
+! [[2026 FIFA World Cup Group D|D]]
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+|-
+! [[2026 FIFA World Cup Group E|E]]
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+|-
+! [[2026 FIFA World Cup Group F|F]]
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+|-
+! [[2026 FIFA World Cup Group G|G]]
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+|-
+! [[2026 FIFA World Cup Group H|H]]
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+|-
+! [[2026 FIFA World Cup Group I|I]]
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+|-
+! [[2026 FIFA World Cup Group J|J]]
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+|-
+! [[2026 FIFA World Cup Group K|K]]
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+|-
+! [[2026 FIFA World Cup Group L|L]]
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+| <!--{{#invoke:flag|fb|}}-->
+|}
+
+==Bracket==
+The tournament bracket is shown below, with bold denoting the winners of each match.
+
+<section begin=Bracket />{{#invoke:RoundN|N32
+|style=white-space:nowrap|widescore=yes|bold_winner=high|3rdplace=yes
+|RD1=[[#Round of 32|Round of 32]]
+|RD2=[[#Round of 16|Round of 16]]
+|RD3=[[#Quarterfinals|Quarterfinals]]
+|RD4=[[#Semifinals|Semifinals]]
+|RD5=[[#Final|Final]]
+|Consol=[[#Match for third place|Match for third place]]
+<!--Date – Place|Team 1|Score 1|Team 2|Score 2-->
+<!--Round of 32-->
+|June 29 – [[Foxborough]]|<!--{{#invoke:flag|fb|}}-->Winner Group E||<!--{{#invoke:flag|fb|}}-->3rd Group A/B/C/D/F|
+|June 30 – [[East Rutherford]]|<!--{{#invoke:flag|fb|}}-->Winner Group I||<!--{{#invoke:flag|fb|}}-->3rd Group C/D/F/G/H|
+|June 28 – [[Inglewood, California|Inglewood]]|<!--{{#invoke:flag|fb|}}-->Runner-up Group A||<!--{{#invoke:flag|fb|}}-->Runner-up Group B|
+|June 29 – [[Guadalupe, Nuevo León|Guadalupe]]|<!--{{#invoke:flag|fb|}}-->Winner Group F||<!--{{#invoke:flag|fb|}}-->Runner-up Group C|
+|July 2 – [[Toronto]]|<!--{{#invoke:flag|fb|}}-->Runner-up Group K||<!--{{#invoke:flag|fb|}}-->Runner-up Group L|
+|July 2 – [[Inglewood, California|Inglewood]]|<!--{{#invoke:flag|fb|}}-->Winner Group H||<!--{{#invoke:flag|fb|}}-->Runner-up Group J|
+|July 1 – [[Santa Clara, California|Santa Clara]]|<!--{{#invoke:flag|fb|}}-->Winner Group D||<!--{{#invoke:flag|fb|}}-->3rd Group B/E/F/I/J|
+|July 1 – [[Seattle]]|<!--{{#invoke:flag|fb|}}-->Winner Group G||<!--{{#invoke:flag|fb|}}-->3rd Group A/E/H/I/J|
+|June 29 – [[Houston]]|<!--{{#invoke:flag|fb|}}-->Winner Group C||<!--{{#invoke:flag|fb|}}-->Runner-up Group F|
+|June 30 – [[Arlington, Texas|Arlington]]|<!--{{#invoke:flag|fb|}}-->Runner-up Group E||<!--{{#invoke:flag|fb|}}-->Runner-up Group I|
+|June 30 – [[Mexico City]]|<!--{{#invoke:flag|fb|}}-->Winner Group A||<!--{{#invoke:flag|fb|}}-->3rd Group C/E/F/H/I|
+|July 1 – [[Atlanta]]|<!--{{#invoke:flag|fb|}}-->Winner Group L||<!--{{#invoke:flag|fb|}}-->3rd Group E/H/I/J/K|
+|July 3 – [[Miami Gardens]]|<!--{{#invoke:flag|fb|}}-->Winner Group J||<!--{{#invoke:flag|fb|}}-->Runner-up Group H|
+|July 3 – [[Arlington, Texas|Arlington]]|<!--{{#invoke:flag|fb|}}-->Runner-up Group D||<!--{{#invoke:flag|fb|}}-->Runner-up Group G|
+|July 2 – [[Vancouver]]|<!--{{#invoke:flag|fb|}}-->Winner Group B||<!--{{#invoke:flag|fb|}}-->3rd Group E/F/G/I/J|
+|July 3 – [[Kansas City, Missouri|Kansas City]]|<!--{{#invoke:flag|fb|}}-->Winner Group K||<!--{{#invoke:flag|fb|}}-->3rd Group D/E/I/J/L|
+<!--Round of 16-->
+|July 4 – [[Philadelphia]]|<!--{{#invoke:flag|fb|}}-->Winner Match 74||<!--{{#invoke:flag|fb|}}-->Winner Match 77|
+|July 4 – [[Houston]]|<!--{{#invoke:flag|fb|}}-->Winner Match 73||<!--{{#invoke:flag|fb|}}-->Winner Match 75|
+|July 6 – [[Arlington, Texas|Arlington]]|<!--{{#invoke:flag|fb|}}-->Winner Match 83||<!--{{#invoke:flag|fb|}}-->Winner Match 84|
+|July 6 – [[Seattle]]|<!--{{#invoke:flag|fb|}}-->Winner Match 81||<!--{{#invoke:flag|fb|}}-->Winner Match 82|
+|July 5 – [[East Rutherford]]|<!--{{#invoke:flag|fb|}}-->Winner Match 76||<!--{{#invoke:flag|fb|}}-->Winner Match 78|
+|July 5 – [[Mexico City]]|<!--{{#invoke:flag|fb|}}-->Winner Match 79||<!--{{#invoke:flag|fb|}}-->Winner Match 80|
+|July 7 – [[Atlanta]]|<!--{{#invoke:flag|fb|}}-->Winner Match 86||<!--{{#invoke:flag|fb|}}-->Winner Match 88|
+|July 7 – [[Vancouver]]|<!--{{#invoke:flag|fb|}}-->Winner Match 85||<!--{{#invoke:flag|fb|}}-->Winner Match 87|
+<!--Quarterfinals-->
+|July 9 – [[Foxborough]]|<!--{{#invoke:flag|fb|}}-->Winner Match 89||<!--{{#invoke:flag|fb|}}-->Winner Match 90|
+|July 10 – [[Inglewood, California|Inglewood]]|<!--{{#invoke:flag|fb|}}-->Winner Match 93||<!--{{#invoke:flag|fb|}}-->Winner Match 94|
+|July 11 – [[Miami Gardens]]|<!--{{#invoke:flag|fb|}}-->Winner Match 91||<!--{{#invoke:flag|fb|}}-->Winner Match 92|
+|July 11 – [[Kansas City, Missouri|Kansas City]]|<!--{{#invoke:flag|fb|}}-->Winner Match 95||<!--{{#invoke:flag|fb|}}-->Winner Match 96|
+<!--Semifinals-->
+|July 14 – [[Arlington, Texas|Arlington]]|<!--{{#invoke:flag|fb|}}-->Winner Match 97||<!--{{#invoke:flag|fb|}}-->Winner Match 98|
+|July 15 – [[Atlanta]]|<!--{{#invoke:flag|fb|}}-->Winner Match 99||<!--{{#invoke:flag|fb|}}-->Winner Match 100|
+<!--Final-->
+|July 19 – [[East Rutherford]]|<!--{{#invoke:flag|fb|}}-->Winner Match 101||<!--{{#invoke:flag|fb|}}-->Winner Match 102|
+<!--Match for third place-->
+|July 18 – [[Miami Gardens]]|<!--{{#invoke:flag|fb|}}-->Loser Match 101||<!--{{#invoke:flag|fb|}}-->Loser Match 102|
+}}<section end=Bracket />
+
+==Round of 32==
+<!--{{main|2026 FIFA World Cup round of 32}}-->
+
+===Runner-up Group A vs Runner-up Group B===
+<section begin=R32-1 />{{#invoke:football box|main
+|date={{Start date|2026|6|28}}
+|time=12:00&nbsp;p.m. [[UTC−07:00|UTC−7]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Runner-up Group A
+|score={{score link|2026 FIFA World Cup knockout stage#Runner-up Group A vs Runner-up Group B|Match 73}}
+|team2=<!--{{#invoke:flag|fb|}}-->Runner-up Group B
+|goals1=
+|goals2=
+|stadium=[[SoFi Stadium]], [[Inglewood, California|Inglewood]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021518 "2A vs 2B {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-1 />
+
+===Winner Group C vs Runner-up Group F===
+<section begin=R32-2 />{{#invoke:football box|main
+|date={{Start date|2026|6|29}}
+|time=12:00&nbsp;p.m. [[UTC−05:00|UTC−5]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Group C
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Group C vs Runner-up Group F|Match 76}}
+|team2=<!--{{#invoke:flag|fb|}}-->Runner-up Group F
+|goals1=
+|goals2=
+|stadium=[[NRG Stadium]], [[Houston]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021516 "1C vs 2F {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-2 />
+
+===Winner Group E vs 3rd Group A/B/C/D/F===
+<section begin=R32-3 />{{#invoke:football box|main
+|date={{Start date|2026|6|29}}
+|time=4:30&nbsp;p.m. [[UTC−04:00|UTC−4]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Group E
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Group E vs 3rd Group A/B/C/D/F|Match 74}}
+|team2=<!--{{#invoke:flag|fb|}}-->3rd Group A/B/C/D/F
+|goals1=
+|goals2=
+|stadium=[[Gillette Stadium]], [[Foxborough, Massachusetts|Foxborough]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021513 "1E vs 3ABCDF {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-3 />
+
+===Winner Group F vs Runner-up Group C===
+<section begin=R32-4 />{{#invoke:football box|main
+|date={{Start date|2026|6|29}}
+|time=7:00&nbsp;p.m. [[UTC−06:00|UTC−6]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Group F
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Group F vs Runner-up Group C|Match 75}}
+|team2=<!--{{#invoke:flag|fb|}}-->Runner-up Group C
+|goals1=
+|goals2=
+|stadium=[[Estadio BBVA]], [[Guadalupe, Nuevo León|Guadalupe]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021522 "1F vs 2C {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-4 />
+
+===Runner-up Group E vs Runner-up Group I===
+<section begin=R32-5 />{{#invoke:football box|main
+|date={{Start date|2026|6|30}}
+|time=12:00&nbsp;p.m. [[UTC−05:00|UTC−5]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Runner-up Group E
+|score={{score link|2026 FIFA World Cup knockout stage#Runner-up Group E vs Runner-up Group I|Match 78}}
+|team2=<!--{{#invoke:flag|fb|}}-->Runner-up Group I
+|goals1=
+|goals2=
+|stadium=[[AT&T Stadium]], [[Arlington, Texas|Arlington]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021514 "2E vs 2I {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-5 />
+
+===Winner Group I vs 3rd Group C/D/F/G/H===
+<section begin=R32-6 />{{#invoke:football box|main
+|date={{Start date|2026|6|30}}
+|time=5:00&nbsp;p.m. [[UTC−04:00|UTC−4]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Group I
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Group I vs 3rd Group C/D/F/G/H|Match 77}}
+|team2=<!--{{#invoke:flag|fb|}}-->3rd Group C/D/F/G/H
+|goals1=
+|goals2=
+|stadium=[[MetLife Stadium]], [[East Rutherford, New Jersey|East Rutherford]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021523 "1I vs 3CDFGH {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-6 />
+
+===Winner Group A vs 3rd Group C/E/F/H/I===
+<section begin=R32-7 />{{#invoke:football box|main
+|date={{Start date|2026|6|30}}
+|time=7:00&nbsp;p.m. [[UTC−06:00|UTC−6]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Group A
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Group A vs 3rd Group C/E/F/H/I|Match 79}}
+|team2=<!--{{#invoke:flag|fb|}}-->3rd Group C/E/F/H/I
+|goals1=
+|goals2=
+|stadium=[[Estadio Azteca]], [[Mexico City]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021520 "1A vs 3CEFHI {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-7 />
+
+===Winner Group L vs 3rd Group E/H/I/J/K===
+<section begin=R32-8 />{{#invoke:football box|main
+|date={{Start date|2026|7|1}}
+|time=12:00&nbsp;p.m. [[UTC−04:00|UTC−4]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Group L
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Group L vs 3rd Group E/H/I/J/K|Match 80}}
+|team2=<!--{{#invoke:flag|fb|}}-->3rd Group E/H/I/J/K
+|goals1=
+|goals2=
+|stadium=[[Mercedes-Benz Stadium]], [[Atlanta]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021512 "1L vs 3EHIJK {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-8 />
+
+===Winner Group G vs 3rd Group A/E/H/I/J===
+<section begin=R32-9 />{{#invoke:football box|main
+|date={{Start date|2026|7|1}}
+|time=1:00&nbsp;p.m. [[UTC−07:00|UTC−7]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Group G
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Group G vs 3rd Group A/E/H/I/J|Match 82}}
+|team2=<!--{{#invoke:flag|fb|}}-->3rd Group A/E/H/I/J
+|goals1=
+|goals2=
+|stadium=[[Lumen Field]], [[Seattle]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021525 "1G vs 3AEHIJ {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-9 />
+
+===Winner Group D vs 3rd Group B/E/F/I/J===
+<section begin=R32-10 />{{#invoke:football box|main
+|date={{Start date|2026|7|1}}
+|time=5:00&nbsp;p.m. [[UTC−07:00|UTC−7]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Group D
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Group D vs 3rd Group B/E/F/I/J|Match 81}}
+|team2=<!--{{#invoke:flag|fb|}}-->3rd Group B/E/F/I/J
+|goals1=
+|goals2=
+|stadium=[[Levi's Stadium]], [[Santa Clara, California|Santa Clara]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021524 "1D vs 3BEFIJ {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-10 />
+
+===Winner Group H vs Runner-up Group J===
+<section begin=R32-11 />{{#invoke:football box|main
+|date={{Start date|2026|7|2}}
+|time=12:00&nbsp;p.m. [[UTC−07:00|UTC−7]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Group H
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Group H vs Runner-up Group J|Match 84}}
+|team2=<!--{{#invoke:flag|fb|}}-->Runner-up Group J
+|goals1=
+|goals2=
+|stadium=[[SoFi Stadium]], [[Inglewood, California|Inglewood]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021519 "1H vs 2J {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-11 />
+
+===Runner-up Group K vs Runner-up Group L===
+<section begin=R32-12 />{{#invoke:football box|main
+|date={{Start date|2026|7|2}}
+|time=7:00&nbsp;p.m. [[UTC−04:00|UTC−4]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Runner-up Group K
+|score={{score link|2026 FIFA World Cup knockout stage#Runner-up Group K vs Runner-up Group L|Match 83}}
+|team2=<!--{{#invoke:flag|fb|}}-->Runner-up Group L
+|goals1=
+|goals2=
+|stadium=[[BMO Field]], [[Toronto]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021526 "2K vs 2L {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-12 />
+
+===Winner Group B vs 3rd Group E/F/G/I/J===
+<section begin=R32-13 />{{#invoke:football box|main
+|date={{Start date|2026|7|2}}
+|time=8:00&nbsp;p.m. [[UTC−07:00|UTC−7]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Group B
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Group B vs 3rd Group E/F/G/I/J|Match 85}}
+|team2=<!--{{#invoke:flag|fb|}}-->3rd Group E/F/G/I/J
+|goals1=
+|goals2=
+|stadium=[[BC Place]], [[Vancouver]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021527 "1B vs 3EFGIJ {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-13 />
+
+===Runner-up Group D vs Runner-up Group G===
+<section begin=R32-14 />{{#invoke:football box|main
+|date={{Start date|2026|7|3}}
+|time=1:00&nbsp;p.m. [[UTC−05:00|UTC−5]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Runner-up Group D
+|score={{score link|2026 FIFA World Cup knockout stage#Runner-up Group D vs Runner-up Group G|Match 88}}
+|team2=<!--{{#invoke:flag|fb|}}-->Runner-up Group G
+|goals1=
+|goals2=
+|stadium=[[AT&T Stadium]], [[Arlington, Texas|Arlington]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021515 "2D vs 2G {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-14 />
+
+===Winner Group J vs Runner-up Group H===
+<section begin=R32-15 />{{#invoke:football box|main
+|date={{Start date|2026|7|3}}
+|time=6:00&nbsp;p.m. [[UTC−04:00|UTC−4]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Group J
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Group J vs Runner-up Group H|Match 86}}
+|team2=<!--{{#invoke:flag|fb|}}-->Runner-up Group H
+|goals1=
+|goals2=
+|stadium=[[Hard Rock Stadium]], [[Miami Gardens, Florida|Miami Gardens]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021521 "1J vs 2H {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-15 />
+
+===Winner Group K vs 3rd Group D/E/I/J/L===
+<section begin=R32-16 />{{#invoke:football box|main
+|date={{Start date|2026|7|3}}
+|time=8:30&nbsp;p.m. [[UTC−05:00|UTC−5]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Group K
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Group K vs 3rd Group D/E/I/J/L|Match 87}}
+|team2=<!--{{#invoke:flag|fb|}}-->3rd Group D/E/I/J/L
+|goals1=
+|goals2=
+|stadium=[[Arrowhead Stadium]], [[Kansas City, Missouri|Kansas City]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289287/400021517 "1K vs 3DEIJL {{!}} Round of 32 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R32-16 />
+
+==Round of 16==
+
+===Winner Match 73 vs Winner Match 75===
+<section begin=R16-1 />{{#invoke:football box|main
+|date={{Start date|2026|7|4}}
+|time=12:00&nbsp;p.m. [[UTC−05:00|UTC−5]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Match 73
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Match 73 vs Winner Match 75|Match 90}}
+|team2=<!--{{#invoke:flag|fb|}}-->Winner Match 75
+|goals1=
+|goals2=
+|stadium=[[NRG Stadium]], [[Houston]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289288/400021530 "W73 vs W75 {{!}} Round of 16 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R16-1 />
+
+===Winner Match 74 vs Winner Match 77===
+<section begin=R16-2 />{{#invoke:football box|main
+|date={{Start date|2026|7|4}}
+|time=5:00&nbsp;p.m. [[UTC−04:00|UTC−4]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Match 74
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Match 74 vs Winner Match 77|Match 89}}
+|team2=<!--{{#invoke:flag|fb|}}-->Winner Match 77
+|goals1=
+|goals2=
+|stadium=[[Lincoln Financial Field]], [[Philadelphia]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289288/400021533 "W74 vs W77 {{!}} Round of 16 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R16-2 />
+
+===Winner Match 76 vs Winner Match 78===
+<section begin=R16-3 />{{#invoke:football box|main
+|date={{Start date|2026|7|5}}
+|time=4:00&nbsp;p.m. [[UTC−04:00|UTC−4]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Match 76
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Match 76 vs Winner Match 78|Match 91}}
+|team2=<!--{{#invoke:flag|fb|}}-->Winner Match 78
+|goals1=
+|goals2=
+|stadium=[[MetLife Stadium]], [[East Rutherford, New Jersey|East Rutherford]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289288/400021532 "W76 vs W78 {{!}} Round of 16 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R16-3 />
+
+===Winner Match 79 vs Winner Match 80===
+<section begin=R16-4 />{{#invoke:football box|main
+|date={{Start date|2026|7|5}}
+|time=6:00&nbsp;p.m. [[UTC−06:00|UTC−6]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Match 79
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Match 79 vs Winner Match 80|Match 92}}
+|team2=<!--{{#invoke:flag|fb|}}-->Winner Match 80
+|goals1=
+|goals2=
+|stadium=[[Estadio Azteca]], [[Mexico City]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289288/400021531 "W79 vs W80 {{!}} Round of 16 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R16-4 />
+
+===Winner Match 83 vs Winner Match 84===
+<section begin=R16-5 />{{#invoke:football box|main
+|date={{Start date|2026|7|6}}
+|time=2:00&nbsp;p.m. [[UTC−05:00|UTC−5]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Match 83
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Match 83 vs Winner Match 84|Match 93}}
+|team2=<!--{{#invoke:flag|fb|}}-->Winner Match 84
+|goals1=
+|goals2=
+|stadium=[[AT&T Stadium]], [[Arlington, Texas|Arlington]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289288/400021529 "W83 vs W84 {{!}} Round of 16 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R16-5 />
+
+===Winner Match 81 vs Winner Match 82===
+<section begin=R16-6 />{{#invoke:football box|main
+|date={{Start date|2026|7|6}}
+|time=5:00&nbsp;p.m. [[UTC−07:00|UTC−7]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Match 81
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Match 81 vs Winner Match 82|Match 94}}
+|team2=<!--{{#invoke:flag|fb|}}-->Winner Match 82
+|goals1=
+|goals2=
+|stadium=[[Lumen Field]], [[Seattle]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289288/400021534 "W81 vs W82 {{!}} Round of 16 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R16-6 />
+
+===Winner Match 86 vs Winner Match 88===
+<section begin=R16-7 />{{#invoke:football box|main
+|date={{Start date|2026|7|7}}
+|time=12:00&nbsp;p.m. [[UTC−04:00|UTC−4]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Match 86
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Match 86 vs Winner Match 88|Match 95}}
+|team2=<!--{{#invoke:flag|fb|}}-->Winner Match 88
+|goals1=
+|goals2=
+|stadium=[[Mercedes-Benz Stadium]], [[Atlanta]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289288/400021528 "W86 vs W88 {{!}} Round of 16 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R16-7 />
+
+===Winner Match 85 vs Winner Match 87===
+<section begin=R16-8 />{{#invoke:football box|main
+|date={{Start date|2026|7|7}}
+|time=1:00&nbsp;p.m. [[UTC−07:00|UTC−7]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Match 85
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Match 85 vs Winner Match 87|Match 96}}
+|team2=<!--{{#invoke:flag|fb|}}-->Winner Match 87
+|goals1=
+|goals2=
+|stadium=[[BC Place]], [[Vancouver]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289288/400021535 "W85 vs W87 {{!}} Round of 16 {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=R16-8 />
+
+==Quarterfinals==
+
+===Winner Match 89 vs Winner Match 90===
+<section begin=QF1 />{{#invoke:football box|main
+|date={{Start date|2026|7|9}}
+|time=4:00&nbsp;p.m. [[UTC−04:00|UTC−4]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Match 89
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Match 89 vs Winner Match 90|Match 97}}
+|team2=<!--{{#invoke:flag|fb|}}-->Winner Match 90
+|goals1=
+|goals2=
+|stadium=[[Gillette Stadium]], [[Foxborough, Massachusetts|Foxborough]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289289/400021536 "W89 vs W90 {{!}} Quarter-final {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=QF1 />
+
+===Winner Match 93 vs Winner Match 94===
+<section begin=QF2 />{{#invoke:football box|main
+|date={{Start date|2026|7|10}}
+|time=12:00&nbsp;p.m. [[UTC−07:00|UTC−7]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Match 93
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Match 93 vs Winner Match 94|Match 98}}
+|team2=<!--{{#invoke:flag|fb|}}-->Winner Match 94
+|goals1=
+|goals2=
+|stadium=[[SoFi Stadium]], [[Inglewood, California|Inglewood]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289289/400021538 "W93 vs W94 {{!}} Quarter-final {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=QF2 />
+
+===Winner Match 91 vs Winner Match 92===
+<section begin=QF3 />{{#invoke:football box|main
+|date={{Start date|2026|7|11}}
+|time=5:00&nbsp;p.m. [[UTC−04:00|UTC−4]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Match 91
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Match 91 vs Winner Match 92|Match 99}}
+|team2=<!--{{#invoke:flag|fb|}}-->Winner Match 92
+|goals1=
+|goals2=
+|stadium=[[Hard Rock Stadium]], [[Miami Gardens, Florida|Miami Gardens]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289289/400021539 "W91 vs W92 {{!}} Quarter-final {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=QF3 />
+
+===Winner Match 95 vs Winner Match 96===
+<section begin=QF4 />{{#invoke:football box|main
+|date={{Start date|2026|7|11}}
+|time=8:00&nbsp;p.m. [[UTC−05:00|UTC−5]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Match 95
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Match 95 vs Winner Match 96|Match 100}}
+|team2=<!--{{#invoke:flag|fb|}}-->Winner Match 96
+|goals1=
+|goals2=
+|stadium=[[Arrowhead Stadium]], [[Kansas City, Missouri|Kansas City]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289289/400021537 "W95 vs W96 {{!}} Quarter-final {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=QF4 />
+
+==Semifinals==
+
+===Winner Match 97 vs Winner Match 98===
+<section begin=SF1 />{{#invoke:football box|main
+|date={{Start date|2026|7|14}}
+|time=2:00&nbsp;p.m. [[UTC−05:00|UTC−5]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Match 97
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Match 97 vs Winner Match 98|Match 101}}
+|team2=<!--{{#invoke:flag|fb|}}-->Winner Match 98
+|goals1=
+|goals2=
+|stadium=[[AT&T Stadium]], [[Arlington, Texas|Arlington]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289290/400021541 "W97 vs W98 {{!}} Semi-final {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=SF1 />
+
+===Winner Match 99 vs Winner Match 100===
+<section begin=SF2 />{{#invoke:football box|main
+|date={{Start date|2026|7|15}}
+|time=3:00&nbsp;p.m. [[UTC−04:00|UTC−4]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Winner Match 99
+|score={{score link|2026 FIFA World Cup knockout stage#Winner Match 99 vs Winner Match 100|Match 102}}
+|team2=<!--{{#invoke:flag|fb|}}-->Winner Match 100
+|goals1=
+|goals2=
+|stadium=[[Mercedes-Benz Stadium]], [[Atlanta]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289290/400021540 "W99 vs W100 {{!}} Semi-final {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=SF2 />
+
+==Match for third place==
+<section begin=3rd />{{#invoke:football box|main
+|date={{Start date|2026|7|18}}
+|time=5:00&nbsp;p.m. [[UTC−04:00|UTC−4]]
+|team1=<!--{{#invoke:flag|fb-rt|}}-->Loser Match 101
+|score={{score link|2026 FIFA World Cup knockout stage#Match for third place|Match 103}}
+|team2=<!--{{#invoke:flag|fb|}}-->Loser Match 102
+|goals1=
+|goals2=
+|stadium=[[Hard Rock Stadium]], [[Miami Gardens, Florida|Miami Gardens]]
+|attendance=
+|referee=
+|report=<ref group="Report">[https://www.fifa.com/en/match-centre/match/17/285023/289291/400021542 "RU101 vs RU102 {{!}} Play-off for third place {{!}} FIFA World Cup 2026"]. FIFA. Retrieved May 1, 2026.</ref>
+}}<section end=3rd />
+
+==Final==
+{{main|2026 FIFA World Cup final}}
+{{#lst:2026 FIFA World Cup final|Final}}<!--
+{{#lst:2026 FIFA World Cup final|Line-ups}}-->
+
+==References==
+{{reflist}}
+
+===Reports===
+{{reflist|group=Report}}
+
+==External links==
+* {{Official website|https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026}}
+
+{{2026 FIFA World Cup}}
+
+{{DEFAULTSORT:Knockout stage}}
+[[Category:2026 FIFA World Cup]]
+[[Category:FIFA World Cup knockout stages|2026]]
+[[Category:Sports competitions in Santa Clara, California]]
+[[Category:Soccer competitions in California]]
+[[Category:2026 in sports in California]]
+[[Category:Sports competitions in Inglewood, California]]
+[[Category:Soccer competitions in Los Angeles County, California]]
+[[Category:2026 in sports in Los Angeles County, California]]
+[[Category:Soccer in Seattle]]
+[[Category:Sports competitions in Seattle]]
+[[Category:Soccer competitions in Washington (state)]]
+[[Category:2026 in Seattle]]
+[[Category:2026 in sports in Washington (state)]]
+[[Category:Soccer competitions in Toronto]]
+[[Category:2026 in sports in Ontario]]
+[[Category:2026 in Toronto]]
+[[Category:2026 in sports in British Columbia]]
+[[Category:Soccer competitions in Vancouver]]
+[[Category:2026 in Vancouver]]
+[[Category:Soccer in Philadelphia]]
+[[Category:Sports competitions in Philadelphia]]
+[[Category:Soccer competitions in Pennsylvania]]
+[[Category:2026 in sports in Pennsylvania]]
+[[Category:2026 in Philadelphia]]
+[[Category:Sports competitions in East Rutherford, New Jersey]]
+[[Category:Soccer competitions in New Jersey]]
+[[Category:2026 in sports in New Jersey]]
+[[Category:Soccer in Atlanta]]
+[[Category:Sports competitions in Atlanta]]
+[[Category:Soccer competitions in Georgia (U.S. state)]]
+[[Category:2026 in sports in Georgia (U.S. state)]]
+[[Category:2026 in Atlanta]]
+[[Category:Soccer competitions in Houston]]
+[[Category:2026 in sports in Texas]]
+[[Category:2026 in Houston]]
+[[Category:Soccer competitions in Kansas City, Missouri]]
+[[Category:2020s in Kansas City, Missouri]]
+[[Category:2026 in sports in Missouri]]
+[[Category:Sports competitions in Miami Gardens, Florida]]
+[[Category:Soccer competitions in Florida]]
+[[Category:2026 in sports in Florida]]
+[[Category:2026 in Miami-Dade County, Florida]]
+[[Category:Sports competitions in Foxborough, Massachusetts]]
+[[Category:Soccer competitions in Massachusetts]]
+[[Category:2026 in sports in Massachusetts]]
+[[Category:Football competitions in Mexico City]]
+[[Category:2020s in Mexico City]]
+[[Category:Sport in Zapopan]]
+[[Category:2020s in Jalisco]]
+[[Category:Football in Jalisco]]
+[[Category:Guadalupe, Nuevo León]]
+[[Category:Football in Nuevo León]]
+[[Category:21st century in Nuevo León]]
+[[Category:Sports competitions in Arlington, Texas]]
+[[Category:Soccer competitions in Texas]]
+[[Category:21st century in Arlington, Texas]]

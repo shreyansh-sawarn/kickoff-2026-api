@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 MEDIAWIKI_API = "https://en.wikipedia.org/w/api.php"
 
 # WC2026 pages — use WC2022 equivalents for testing before tournament starts
-WC2026_GROUP_STAGE_PAGE = "2026_FIFA_World_Cup_group_stage"
+WC2026_GROUP_STAGE_PAGE = "2026_FIFA_World_Cup"
 WC2022_GROUP_STAGE_PAGE = "2022_FIFA_World_Cup_Group_A"  # for parser testing
 WC2026_KNOCKOUT_PAGE = "2026_FIFA_World_Cup_knockout_stage"
 
@@ -47,6 +47,7 @@ class ParsedMatch:
     away_score: Optional[int] = None
     status: str = "scheduled"  # scheduled | live | finished
     group_name: Optional[str] = None
+    stage: str = "group"
     kickoff_utc: Optional[datetime] = None
     venue: Optional[str] = None
     events: list["ParsedEvent"] = field(default_factory=list)
@@ -247,7 +248,7 @@ def parse_group_stage_wikitext(wikitext: str, year: int = 2026) -> list[ParsedMa
 
     # Regex to match {{Football box ... }} template blocks
     # We'll find the start then extract the full balanced block
-    football_box_starts = list(re.finditer(r"\{\{Football box", wikitext, re.IGNORECASE))
+    football_box_starts = list(re.finditer(r"\{\{(?:#invoke:)?(?:F|f)ootball box", wikitext, re.IGNORECASE))
 
     # Track which group each match belongs to by position in text
     group_positions: list[tuple[int, str]] = []
@@ -665,6 +666,40 @@ def _parse_card_events(raw: str, team_side: str, card_type: str) -> list[ParsedE
         )
 
     return events
+
+def parse_knockout_stage_wikitext(wikitext: str, year: int = 2026) -> list[ParsedMatch]:
+    matches: list[ParsedMatch] = []
+    
+    football_box_starts = list(re.finditer(r"\{\{(?:#invoke:)?(?:F|f)ootball box", wikitext, re.IGNORECASE))
+    print(f"DEBUG: Found {len(football_box_starts)} football box starts")
+    
+    for start_match in football_box_starts:
+        start = start_match.start()
+        depth = 0
+        end = start
+        for i in range(start, min(start + 5000, len(wikitext))):
+            if wikitext[i : i + 2] == "{{":
+                depth += 1
+            elif wikitext[i : i + 2] == "}}":
+                depth -= 1
+                if depth == 0:
+                    end = i + 2
+                    break
+                    
+        block = wikitext[start:end]
+        match = _parse_football_box_template(block, year)
+        if match:
+            # We don't have group_name for knockout matches, but we should identify stage
+            # Let's map it based on the section header or match number
+            # For simplicity, we just set it as knockout and let pipeline handle ID
+            match.stage = "knockout"
+            match.group_name = None
+            matches.append(match)
+        else:
+            print("DEBUG: _parse_football_box_template returned None for block")
+            
+    print(f"DEBUG: returning {len(matches)} matches")
+    return matches
 
 
 # ---------------------------------------------------------------------------
