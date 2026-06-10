@@ -47,6 +47,43 @@ class Match(Base):
     events: Mapped[list["Event"]] = relationship(
         "Event", back_populates="match", cascade="all, delete-orphan"
     )
+    lineups: Mapped[list["Lineup"]] = relationship(
+        "Lineup", back_populates="match", cascade="all, delete-orphan"
+    )
+    stats: Mapped[list["MatchStat"]] = relationship(
+        "MatchStat", back_populates="match", cascade="all, delete-orphan"
+    )
+
+
+class Lineup(Base):
+    __tablename__ = "lineups"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    match_id: Mapped[str] = mapped_column(String, ForeignKey("matches.id"), nullable=False)
+    team_code: Mapped[str] = mapped_column(String(3), nullable=False)
+    player_name: Mapped[str] = mapped_column(String, nullable=False)
+    position: Mapped[Optional[str]] = mapped_column(String)  # e.g., "GK", "DEF", "MID", "FWD"
+    jersey_number: Mapped[Optional[int]] = mapped_column(Integer)
+    is_starting: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    # Relationships
+    match: Mapped["Match"] = relationship("Match", back_populates="lineups")
+
+
+class MatchStat(Base):
+    __tablename__ = "match_stats"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    match_id: Mapped[str] = mapped_column(String, ForeignKey("matches.id"), nullable=False)
+    team_code: Mapped[str] = mapped_column(String(3), nullable=False)
+    possession_pct: Mapped[Optional[int]] = mapped_column(Integer)
+    shots: Mapped[Optional[int]] = mapped_column(Integer)
+    shots_on_target: Mapped[Optional[int]] = mapped_column(Integer)
+    corners: Mapped[Optional[int]] = mapped_column(Integer)
+    fouls: Mapped[Optional[int]] = mapped_column(Integer)
+
+    # Relationships
+    match: Mapped["Match"] = relationship("Match", back_populates="stats")
 
 
 class Event(Base):
@@ -141,3 +178,18 @@ class ScrapeLog(Base):
     error_message: Mapped[Optional[str]] = mapped_column(Text)
     duration_ms: Mapped[Optional[int]] = mapped_column(Integer)
     scraped_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class PlayerStatistic(Base):
+    """Stores individual player statistics scraped from external sources like FBref."""
+
+    __tablename__ = "player_statistics"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    player_name: Mapped[str] = mapped_column(String, nullable=False)
+    team_code: Mapped[Optional[str]] = mapped_column(String(3))
+    minutes_played: Mapped[int] = mapped_column(Integer, default=0)
+    fbref_url: Mapped[Optional[str]] = mapped_column(Text)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now(), onupdate=func.now()
+    )

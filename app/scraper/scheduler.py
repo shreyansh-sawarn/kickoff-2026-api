@@ -63,6 +63,15 @@ async def _scrape_job() -> None:
             job.reschedule(trigger=IntervalTrigger(seconds=new_interval))
 
 
+async def _fbref_scrape_job() -> None:
+    """FBref scrape job executed every 3 hours."""
+    from app.scraper.fbref import run_fbref_scraper
+    try:
+        await run_fbref_scraper()
+    except Exception as exc:
+        logger.error("FBref scrape job failed: %s", exc, exc_info=True)
+
+
 def start_scheduler() -> None:
     """Start the APScheduler. Called from FastAPI lifespan."""
     if not settings.scraper_enabled:
@@ -81,6 +90,33 @@ def start_scheduler() -> None:
         replace_existing=True,
         max_instances=1,  # prevent overlapping runs
     )
+    
+    # 10800 seconds = 3 hours
+    scheduler.add_job(
+        _fbref_scrape_job,
+        trigger=IntervalTrigger(seconds=10800),
+        id="fbref_scrape_job",
+        name="FBref Minutes Played Scraper",
+        replace_existing=True,
+        max_instances=1,
+    )
+    
+    async def _match_details_job() -> None:
+        from app.scraper.match_details import run_match_details_scraper
+        try:
+            await run_match_details_scraper()
+        except Exception as exc:
+            logger.error("Match details job failed: %s", exc, exc_info=True)
+            
+    scheduler.add_job(
+        _match_details_job,
+        trigger=IntervalTrigger(seconds=10800),
+        id="match_details_job",
+        name="Mock Match Details Scraper",
+        replace_existing=True,
+        max_instances=1,
+    )
+
     scheduler.start()
     logger.info("Scheduler started. Initial poll interval: %ds", initial_interval)
 

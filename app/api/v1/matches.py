@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.db.database import get_db
-from app.db.models import Event, Match
+from app.db.models import Event, Match, Lineup, MatchStat
 
 router = APIRouter(prefix="/matches", tags=["matches"])
 
@@ -53,6 +53,25 @@ def _event_to_dict(event: Event) -> dict:
     }
 
 
+def _lineup_to_dict(lineup: Lineup) -> dict:
+    return {
+        "player_name": lineup.player_name,
+        "team_code": lineup.team_code,
+        "position": lineup.position,
+        "jersey_number": lineup.jersey_number,
+        "is_starting": lineup.is_starting,
+    }
+
+def _stat_to_dict(stat: MatchStat) -> dict:
+    return {
+        "team_code": stat.team_code,
+        "possession_pct": stat.possession_pct,
+        "shots": stat.shots,
+        "shots_on_target": stat.shots_on_target,
+        "corners": stat.corners,
+        "fouls": stat.fouls,
+    }
+
 @router.get("/")
 async def list_matches(
     status: Optional[str] = Query(None, description="scheduled | live | finished"),
@@ -78,19 +97,19 @@ async def list_matches(
         except Exception:
             pass
 
-    stmt = stmt.order_by(Match.kickoff_utc)
+    stmt = stmt.order_by(Match.kickoff_utc).options(selectinload(Match.events))
     result = await db.execute(stmt)
     matches = result.scalars().all()
-    return {"count": len(matches), "matches": [_match_to_dict(m) for m in matches]}
+    return {"count": len(matches), "matches": [_match_to_dict(m, include_events=True) for m in matches]}
 
 
 @router.get("/live")
 async def live_matches(db: AsyncSession = Depends(get_db)):
     """Return currently live matches."""
-    stmt = select(Match).where(Match.status == "live").order_by(Match.kickoff_utc)
+    stmt = select(Match).where(Match.status == "live").order_by(Match.kickoff_utc).options(selectinload(Match.events))
     result = await db.execute(stmt)
     matches = result.scalars().all()
-    return {"count": len(matches), "matches": [_match_to_dict(m) for m in matches]}
+    return {"count": len(matches), "matches": [_match_to_dict(m, include_events=True) for m in matches]}
 
 
 @router.get("/{match_id}")
@@ -106,3 +125,28 @@ async def get_match(match_id: str, db: AsyncSession = Depends(get_db)):
     if not match:
         raise HTTPException(status_code=404, detail=f"Match '{match_id}' not found")
     return _match_to_dict(match, include_events=True)
+
+
+@router.get("/{match_id}/lineups")
+async def get_match_lineups(match_id: str, db: AsyncSession = Depends(get_db)):
+    """Get starting XI and substitutes for a match."""
+    stmt = select(Lineup).where(Lineup.match_id == match_id)
+    result = await db.execute(stmt)
+    lineups = result.scalars().all()
+    if not lineups:
+        raise HTTPException(status_code=404, detail=f"Lineups not found for match '{match_id}'")
+    
+    return {"match_id": match_id, "lineups": [_lineup_to_dict(l) for l in lineups]}
+
+
+@router.get("/{match_id}/stats")
+async def get_match_stats(match_id: str, db: AsyncSession = Depends(get_db)):
+    """Get team-level match statistics."""
+    stmt = select(MatchStat).where(MatchStat.match_id == match_id)
+    result = await db.execute(stmt)
+    stats = result.scalars().all()
+    if not stats:
+        raise HTTPException(status_code=404, detail=f"Stats not found for match '{match_id}'")
+    
+    return {"match_id": match_id, "stats": [_stat_to_dict(s) for s in stats]}
+
