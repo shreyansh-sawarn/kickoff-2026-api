@@ -58,6 +58,30 @@ async def run_scrape_pipeline() -> dict:
             duration_ms=result.get("elapsed_ms")
         )
 
+        # --- Step 1b: Knockout stage ---
+        from app.scraper.wikipedia import fetch_wikitext, WC2026_KNOCKOUT_PAGE, parse_knockout_stage_wikitext
+        ko_wikitext = await fetch_wikitext(WC2026_KNOCKOUT_PAGE)
+        if ko_wikitext:
+            ko_matches = parse_knockout_stage_wikitext(ko_wikitext)
+            ko_changes = await _upsert_matches(db, ko_matches)
+            total_changes += ko_changes
+            await _log_scrape(
+                db, "wikipedia", WC2026_KNOCKOUT_PAGE,
+                success=True, changes=ko_changes
+            )
+
+        # --- Step 1c: Final match ---
+        final_wikitext = await fetch_wikitext("2026_FIFA_World_Cup_final")
+        if final_wikitext:
+            final_matches = parse_knockout_stage_wikitext(final_wikitext)
+            if final_matches:
+                final_changes = await _upsert_matches(db, final_matches)
+                total_changes += final_changes
+                await _log_scrape(
+                    db, "wikipedia", "2026_FIFA_World_Cup_final",
+                    success=True, changes=final_changes
+                )
+
         # --- Step 2: Individual match pages for live/recent matches ---
         # Get matches with a wikipedia_url that are live or finished recently
         stmt = select(Match).where(Match.status.in_(["live", "finished"]))
@@ -155,7 +179,7 @@ async def _upsert_matches(db: AsyncSession, parsed: list[ParsedMatch]) -> int:
                 kickoff_utc=pm.kickoff_utc or datetime(2026, 6, 11, tzinfo=timezone.utc),
                 venue=pm.venue,
                 group_name=pm.group_name,
-                stage="group",
+                stage=pm.stage,
                 status=pm.status,
                 home_score=pm.home_score,
                 away_score=pm.away_score,
@@ -172,6 +196,14 @@ async def _upsert_matches(db: AsyncSession, parsed: list[ParsedMatch]) -> int:
             if existing.source != "override":
                 updated = False
                 
+                if existing.kickoff_utc != pm.kickoff_utc and pm.kickoff_utc is not None:
+                    existing.kickoff_utc = pm.kickoff_utc
+                    updated = True
+
+                if existing.stage != pm.stage:
+                    existing.stage = pm.stage
+                    updated = True
+
                 score_changed = False
                 if existing.home_score != pm.home_score:
                     existing.home_score = pm.home_score
