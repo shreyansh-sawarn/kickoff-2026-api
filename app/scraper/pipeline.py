@@ -12,7 +12,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import AsyncSessionLocal
-from app.db.models import Event, Match, Override, ScrapeLog, Standing
+from app.db.models import Event, Match, Override, ScrapeLog, Standing, Lineup, MatchStat
 from app.scraper.wikipedia import (
     ParsedMatch,
     ParsedMatchDetail,
@@ -41,7 +41,7 @@ async def run_scrape_pipeline() -> dict:
 
     async with AsyncSessionLocal() as db:
         # --- Step 1: Group stage ---
-        result = await scrape_group_stage(use_wc2022_for_testing=True)
+        result = await scrape_group_stage(use_wc2022_for_testing=False)
         if result["error"]:
             await _log_scrape(db, "wikipedia", result.get("page", "group_stage"),
                               success=False, changes=0, error=result["error"])
@@ -82,7 +82,7 @@ async def run_scrape_pipeline() -> dict:
             source_for_events = "wikipedia"
 
             # 2. Scrape FIFA Match Center (Mock for 2022)
-            fifa_match = await scrape_fifa_match(match.home_team, match.away_team)
+            fifa_match = await scrape_fifa_match(match.home_team_code, match.away_team_code)
             if fifa_match:
                 # Hybrid Truth: Check for score conflict
                 if fifa_match.home_score != match.home_score or fifa_match.away_score != match.away_score:
@@ -101,6 +101,11 @@ async def run_scrape_pipeline() -> dict:
                 events_to_upsert = fifa_match.events
                 source_for_events = "fifa"
 
+                # Phase 4: Upsert Lineups and Stats
+                lineup_changes = await _upsert_lineups(db, match, fifa_match.lineups)
+                stat_changes = await _upsert_stats(db, match, fifa_match.stats)
+                total_changes += lineup_changes + stat_changes
+
             # 3. Upsert events into DB
             event_changes = await _upsert_events(db, match, events_to_upsert, source=source_for_events)
             total_changes += event_changes
@@ -111,7 +116,7 @@ async def run_scrape_pipeline() -> dict:
             )
 
         # --- Step 3: Group standings ---
-        standings_wt = await fetch_standings_template(2022) # hardcoded 2022 for testing, normally from config
+        standings_wt = await fetch_standings_template(2026) # fetch real 2026 data
         if standings_wt:
             parsed_standings = parse_standings_template(standings_wt)
             if parsed_standings:
@@ -182,6 +187,10 @@ async def _upsert_matches(db: AsyncSession, parsed: list[ParsedMatch]) -> int:
                     existing.status = pm.status
                     updated = True
                     status_changed = True
+
+                if existing.wikipedia_url != pm.wikipedia_title:
+                    existing.wikipedia_url = pm.wikipedia_title
+                    updated = True
                     
                 if updated:
                     existing.source = "wikipedia"
@@ -251,6 +260,63 @@ async def _upsert_events(db: AsyncSession, match: Match, events: list["ParsedEve
 
     new_count = len(events)
     return abs(new_count - old_count)
+
+
+async def _upsert_lineups(db: AsyncSession, match: Match, lineups: list["ParsedLineup"]) -> int:
+    """
+    Replace all lineups for a match with freshly parsed ones.
+    """
+    if not lineups:
+        return 0
+
+    delete_stmt = delete(Lineup).where(Lineup.match_id == match.id)
+    await db.execute(delete_stmt)
+
+    home_code = match.home_team_code
+    away_code = match.away_team_code
+
+    for pl in lineups:
+        team_code = home_code if pl.team_side == "home" else away_code
+        lineup = Lineup(
+            match_id=match.id,
+            team_code=team_code,
+            player_name=pl.player_name,
+            position=pl.position,
+            jersey_number=pl.jersey_number,
+            is_starting=pl.is_starting,
+        )
+        db.add(lineup)
+
+    return len(lineups)
+
+
+async def _upsert_stats(db: AsyncSession, match: Match, stats: list["ParsedStat"]) -> int:
+    """
+    Replace all match stats for a match with freshly parsed ones.
+    """
+    if not stats:
+        return 0
+
+    delete_stmt = delete(MatchStat).where(MatchStat.match_id == match.id)
+    await db.execute(delete_stmt)
+
+    home_code = match.home_team_code
+    away_code = match.away_team_code
+
+    for ps in stats:
+        team_code = home_code if ps.team_side == "home" else away_code
+        stat = MatchStat(
+            match_id=match.id,
+            team_code=team_code,
+            possession_pct=ps.possession_pct,
+            shots=ps.shots,
+            shots_on_target=ps.shots_on_target,
+            corners=ps.corners,
+            fouls=ps.fouls,
+        )
+        db.add(stat)
+
+    return len(stats)
 
 
 def _make_match_id(pm: ParsedMatch) -> str:

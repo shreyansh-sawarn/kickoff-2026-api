@@ -85,7 +85,7 @@ app.add_middleware(
 # API routers
 # ---------------------------------------------------------------------------
 
-from app.api.v1 import events, matches, meta, scorers, standings, webhooks
+from app.api.v1 import events, matches, meta, scorers, standings, webhooks, news
 
 api_v1_prefix = "/api/v1"
 
@@ -95,6 +95,7 @@ app.include_router(standings.router, prefix=api_v1_prefix)
 app.include_router(events.router, prefix=api_v1_prefix)
 app.include_router(meta.router, prefix=api_v1_prefix)
 app.include_router(webhooks.router, prefix=api_v1_prefix)
+app.include_router(news.router, prefix=api_v1_prefix)
 
 # ---------------------------------------------------------------------------
 # Admin UI

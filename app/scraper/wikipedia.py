@@ -227,7 +227,7 @@ def parse_standings_template(wikitext: str) -> list["ParsedStanding"]:
     return standings
 
 
-def parse_group_stage_wikitext(wikitext: str) -> list[ParsedMatch]:
+def parse_group_stage_wikitext(wikitext: str, year: int = 2026) -> list[ParsedMatch]:
     """
     Parse the group stage summary page wikitext.
 
@@ -281,7 +281,7 @@ def parse_group_stage_wikitext(wikitext: str) -> list[ParsedMatch]:
                     break
 
         template = wikitext[start:end]
-        parsed = _parse_football_box_template(template)
+        parsed = _parse_football_box_template(template, year=year)
         if parsed:
             parsed.group_name = group
             matches.append(parsed)
@@ -346,7 +346,7 @@ def _parse_goals(text: str, team_side: str) -> list["ParsedEvent"]:
     return events
 
 
-def _parse_football_box_template(template: str) -> Optional[ParsedMatch]:
+def _parse_football_box_template(template: str, year: int = 2026) -> Optional[ParsedMatch]:
     """
     Parse a {{Football box}} template into a ParsedMatch.
 
@@ -399,7 +399,7 @@ def _parse_football_box_template(template: str) -> Optional[ParsedMatch]:
     # Pattern: Home_v_Away_(2026_FIFA_World_Cup)
     home_slug = home.replace(" ", "_")
     away_slug = away.replace(" ", "_")
-    wiki_title = f"{home_slug}_v_{away_slug}_(2026_FIFA_World_Cup)"
+    wiki_title = f"{home_slug}_v_{away_slug}_({year}_FIFA_World_Cup)"
 
     # Date
     date_str = extract_field("date") or ""
@@ -684,7 +684,8 @@ async def scrape_group_stage(use_wc2022_for_testing: bool = False) -> dict:
     if not wikitext:
         return {"matches": [], "error": f"Failed to fetch wikitext for {page}"}
 
-    matches = parse_group_stage_wikitext(wikitext)
+    year = 2022 if use_wc2022_for_testing else 2026
+    matches = parse_group_stage_wikitext(wikitext, year=year)
     
     # Fallback for group name if testing a single group page
     group_match = re.search(r"Group_([A-L])", page)

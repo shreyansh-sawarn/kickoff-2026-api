@@ -2,9 +2,9 @@ import asyncio
 import time
 from datetime import datetime, timezone
 from app.db.database import AsyncSessionLocal
-from app.db.models import WebhookSubscription, Event, Match
+from app.db.models import WebhookSubscription, Event, Match, Lineup, MatchStat
 from app.scraper.fifa import scrape_fifa_match
-from app.scraper.pipeline import _upsert_events
+from app.scraper.pipeline import _upsert_events, _upsert_lineups, _upsert_stats
 from app.services.webhooks import dispatch_webhook
 from sqlalchemy import select
 
@@ -23,7 +23,7 @@ async def test_fifa():
     print("Running FIFA mock scrape...")
     async with AsyncSessionLocal() as db:
         stmt = select(Match).where(Match.home_team_code == 'QAT', Match.away_team_code == 'ECU')
-        match = (await db.execute(stmt)).scalar_one_or_none()
+        match = (await db.execute(stmt)).scalars().first()
         
         if match:
             print(f"Match found: {match.home_team} {match.home_score} - {match.away_score} {match.away_team}")
@@ -41,6 +41,8 @@ async def test_fifa():
                     await dispatch_webhook("system.conflict", payload)
                 
                 await _upsert_events(db, match, fifa_match.events, source="fifa")
+                await _upsert_lineups(db, match, fifa_match.lineups)
+                await _upsert_stats(db, match, fifa_match.stats)
                 await db.commit()
 
             # Wait for webhook delivery
@@ -48,9 +50,21 @@ async def test_fifa():
 
             stmt = select(Event).where(Event.match_id == match.id)
             events = (await db.execute(stmt)).scalars().all()
-            print(f"Found {len(events)} events for this match:")
+            print(f"\nFound {len(events)} events for this match:")
             for e in events:
                 print(f"  - Minute {e.minute}: {e.player_name} ({e.type}) [{e.source}]")
+
+            stmt = select(Lineup).where(Lineup.match_id == match.id)
+            lineups = (await db.execute(stmt)).scalars().all()
+            print(f"\nFound {len(lineups)} lineups for this match:")
+            for l in lineups:
+                print(f"  - {l.team_code} {l.position} {l.jersey_number}: {l.player_name} (Starting: {l.is_starting})")
+
+            stmt = select(MatchStat).where(MatchStat.match_id == match.id)
+            stats = (await db.execute(stmt)).scalars().all()
+            print(f"\nFound {len(stats)} stats for this match:")
+            for s in stats:
+                print(f"  - {s.team_code} Possession: {s.possession_pct}%, Shots: {s.shots}")
         else:
             print("Match not found!")
 

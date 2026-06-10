@@ -87,3 +87,37 @@ async def red_cards(
     """Players with red cards (straight red or second yellow)."""
     rows = await _aggregate_events(db, ["red", "yellow_red"], limit, team)
     return {"count": len(rows), "red_cards": rows}
+
+
+@router.get("/minutes")
+async def top_minutes(
+    limit: int = Query(20, ge=1, le=100),
+    team: Optional[str] = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    """Top players by exact minutes played (from FBref)."""
+    from app.db.models import PlayerStatistic
+    
+    stmt = (
+        select(PlayerStatistic)
+        .order_by(PlayerStatistic.minutes_played.desc())
+        .limit(limit)
+    )
+    
+    if team:
+        stmt = stmt.where(PlayerStatistic.team_code == team.upper())
+        
+    result = await db.execute(stmt)
+    rows = result.scalars().all()
+    
+    data = [
+        {
+            "rank": i + 1,
+            "player_name": r.player_name,
+            "team_code": r.team_code,
+            "count": r.minutes_played
+        }
+        for i, r in enumerate(rows)
+    ]
+    
+    return {"count": len(data), "minutes": data}

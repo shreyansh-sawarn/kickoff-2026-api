@@ -38,3 +38,7 @@ scrape_logs/
 .pytest_cache/
 htmlcov/
 .coverage
+
+# Scraping artifacts
+downloaded_files/
+temp_*.json
