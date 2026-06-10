@@ -14,7 +14,7 @@ import logging
 import re
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 import httpx
@@ -402,9 +402,10 @@ def _parse_football_box_template(template: str, year: int = 2026) -> Optional[Pa
     away_slug = away.replace(" ", "_")
     wiki_title = f"{home_slug}_v_{away_slug}_({year}_FIFA_World_Cup)"
 
-    # Date
+    # Date and Time
     date_str = extract_field("date") or ""
-    kickoff = _parse_start_date_template(date_str)
+    time_str = extract_field("time") or ""
+    kickoff = _parse_start_date_template(date_str, time_str)
 
     venue = _clean_wiki_markup(extract_field("stadium") or "")
 
@@ -438,24 +439,57 @@ def _parse_score(score_raw: str) -> tuple[Optional[int], Optional[int]]:
     return None, None
 
 
-def _parse_start_date_template(s: str) -> Optional[datetime]:
+def _parse_start_date_template(date_s: str, time_s: str = "") -> Optional[datetime]:
     """
-    Parse {{Start date|2026|6|11|20|0|0}} → datetime(2026, 6, 11, 20, 0, 0, tzinfo=UTC)
+    Parse {{Start date|2026|6|11}} and time string like "12:00 p.m. [[UTC-05:00|UTC-5]]"
+    Returns a timezone-aware datetime in UTC.
     """
     m = re.search(
         r"\{\{Start date\|(\d{4})\|(\d{1,2})\|(\d{1,2})(?:\|(\d{1,2})(?:\|(\d{1,2}))?)?",
-        s,
+        date_s,
         re.IGNORECASE,
     )
-    if m:
-        year, month, day = int(m.group(1)), int(m.group(2)), int(m.group(3))
-        hour = int(m.group(4)) if m.group(4) else 0
-        minute = int(m.group(5)) if m.group(5) else 0
-        try:
-            return datetime(year, month, day, hour, minute, tzinfo=timezone.utc)
-        except ValueError:
-            return None
-    return None
+    if not m:
+        return None
+        
+    year, month, day = int(m.group(1)), int(m.group(2)), int(m.group(3))
+    hour = int(m.group(4)) if m.group(4) else 0
+    minute = int(m.group(5)) if m.group(5) else 0
+
+    if time_s:
+        # Time string formats: "12:00 [[UTC-05:00|UTC-5]]" or "15:00 CST (UTC-5)"
+        m_time = re.search(r"(\d{1,2}):(\d{2})", time_s)
+        if m_time:
+            hour = int(m_time.group(1))
+            minute = int(m_time.group(2))
+            # handle p.m. / a.m.
+            if "p.m." in time_s.lower() or "pm" in time_s.lower():
+                if hour < 12:
+                    hour += 12
+            if "a.m." in time_s.lower() or "am" in time_s.lower():
+                if hour == 12:
+                    hour = 0
+            
+            # handle UTC offset
+            time_s_clean = time_s.replace("−", "-") # replace unicode minus
+            m_utc = re.search(r"UTC\s*([+-]\d{1,2})(?::(\d{2}))?", time_s_clean, re.IGNORECASE)
+            if m_utc:
+                offset_hours = int(m_utc.group(1))
+                offset_minutes = int(m_utc.group(2)) if m_utc.group(2) else 0
+                if offset_hours < 0:
+                    offset_minutes = -offset_minutes
+                
+                try:
+                    dt_local = datetime(year, month, day, hour, minute)
+                    offset = timedelta(hours=offset_hours, minutes=offset_minutes)
+                    return (dt_local - offset).replace(tzinfo=timezone.utc)
+                except ValueError:
+                    pass
+
+    try:
+        return datetime(year, month, day, hour, minute, tzinfo=timezone.utc)
+    except ValueError:
+        return None
 
 
 def _clean_wiki_markup(text: str) -> str:
