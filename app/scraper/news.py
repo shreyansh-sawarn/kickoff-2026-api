@@ -137,6 +137,16 @@ async def fetch_latest_news(limit: int = 4) -> List[Dict[Any, Any]]:
                 "published_at": dt
             })
             
+        # Deduplicate articles by normalized title
+        seen_titles = set()
+        deduped_articles = []
+        for a in articles:
+            title_norm = a["title"].strip().lower()
+            if title_norm not in seen_titles:
+                seen_titles.add(title_norm)
+                deduped_articles.append(a)
+        articles = deduped_articles
+
         # Sort by published date descending
         articles.sort(key=lambda x: x['published_at'], reverse=True)
         
