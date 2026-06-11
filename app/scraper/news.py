@@ -13,9 +13,14 @@ ESPN_RSS = "https://www.espn.com/espn/rss/soccer/news"
 SKYSPORTS_RSS = "https://www.skysports.com/rss/12040"
 
 def clean_html(raw_html: str) -> str:
-    """Removes HTML tags from a string."""
+    """Removes HTML tags from a string and filters out literal 'null' strings."""
+    if not raw_html:
+        return ""
     cleanr = re.compile('<.*?>')
-    return re.sub(cleanr, '', raw_html).strip()
+    cleaned = re.sub(cleanr, '', raw_html).strip()
+    if cleaned.lower() == "null":
+        return ""
+    return cleaned
 
 def extract_image(entry) -> str:
     """Extracts an image URL from an RSS entry if available."""
@@ -31,11 +36,20 @@ def extract_image(entry) -> str:
             if 'type' in enclosure and enclosure['type'].startswith('image/'):
                 return enclosure['href']
                 
-    # Check for image embedded in description
-    if hasattr(entry, 'description'):
-        match = re.search(r'<img[^>]+src="([^">]+)"', entry.description)
-        if match:
-            return match.group(1)
+    # Check for image embedded in description or summary
+    for field in ['description', 'summary']:
+        if hasattr(entry, field):
+            val = getattr(entry, field)
+            if val:
+                match = re.search(r'<img[^>]+src="([^">]+)"', val)
+                if match:
+                    return match.group(1)
+                
+    # ESPN RSS specific: Check links or specific tag attributes
+    if hasattr(entry, 'links'):
+        for link in entry.links:
+            if 'href' in link and any(ext in link['href'].lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']):
+                return link['href']
             
     return ""
 
@@ -61,9 +75,13 @@ async def fetch_latest_news(limit: int = 4) -> List[Dict[Any, Any]]:
             except:
                 dt = datetime.now(timezone.utc)
             
+            summary_text = clean_html(entry.description) if hasattr(entry, 'description') else ""
+            if not summary_text and hasattr(entry, 'summary'):
+                summary_text = clean_html(entry.summary)
+
             articles.append({
                 "title": entry.title,
-                "summary": clean_html(entry.description) if hasattr(entry, 'description') else "",
+                "summary": summary_text,
                 "link": entry.link,
                 "image_url": extract_image(entry),
                 "source": "ESPN",
@@ -91,24 +109,44 @@ async def fetch_latest_news(limit: int = 4) -> List[Dict[Any, Any]]:
         # Sort by published date descending
         articles.sort(key=lambda x: x['published_at'], reverse=True)
         
-        # Filter for World Cup / International keywords
+        # Filter for World Cup / International keywords, while excluding Tennis/Wimbledon keywords
         keywords = ["world cup", "fifa", "international", "qualifier", "national team", "worldcup", "tournament"]
+        excluded_keywords = ["wimbledon", "tennis", "grand slam", "djokovic", "alcaraz", "sw19", "nadal", "federer", "court"]
         
         filtered_articles = []
         for a in articles:
             text = (a["title"] + " " + a["summary"]).lower()
-            if any(kw in text for kw in keywords):
+            # Must match soccer/WC keywords, and NOT contain tennis/wimbledon keywords
+            if any(kw in text for kw in keywords) and not any(ex in text for ex in excluded_keywords):
                 filtered_articles.append(a)
                 
-        # Fallback: if no world cup news found, just use the general news so the UI isn't empty
-        final_articles = filtered_articles if len(filtered_articles) >= 2 else articles
+        # Fallback: if no world cup news found, just use the general news (applying exclusion list)
+        if len(filtered_articles) < 2:
+            final_articles = [a for a in articles if not any(ex in (a["title"] + " " + a["summary"]).lower() for ex in excluded_keywords)]
+        else:
+            final_articles = filtered_articles
+            
+        # Limit to required entries before fetching HTML metadata to avoid hitting limits or slowing down
+        subset_articles = final_articles[:limit]
+        
+        # Async retrieve missing article image properties from web metadata
+        from app.scraper.metadata_extractor import extract_image_from_html
+        
+        async def populate_image(art):
+            if not art["image_url"] and art["link"]:
+                # Fetch image from raw webpage metadata in background worker thread
+                img = await asyncio.to_thread(extract_image_from_html, art["link"])
+                if img:
+                    art["image_url"] = img
+
+        await asyncio.gather(*(populate_image(art) for art in subset_articles))
         
         # Clean up the output format for the API response
         result = []
-        for a in final_articles[:limit]:
+        for a in subset_articles:
             result.append({
                 "title": a["title"],
-                "summary": a["summary"],
+                "summary": a["summary"] if a["summary"] else "Latest updates from soccer spotlights.",
                 "link": a["link"],
                 "image_url": a["image_url"],
                 "source": a["source"],

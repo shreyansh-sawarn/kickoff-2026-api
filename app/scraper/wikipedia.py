@@ -499,8 +499,8 @@ def _clean_wiki_markup(text: str) -> str:
     if not text:
         return ""
 
-    # Extract team code from {{#invoke:flagg|...|QAT}} or {{fb|QAT}}
-    text = re.sub(r"\{\{#invoke:flagg[^}]*\|([^|}]+)\}\}", r"\1", text, flags=re.IGNORECASE)
+    # Extract team code from {{#invoke:flag|fb-rt|MEX}} or {{fb|QAT}}
+    text = re.sub(r"\{\{#invoke:flagg?[^}]*\|([^|}]+)\}\}", r"\1", text, flags=re.IGNORECASE)
     text = re.sub(r"\{\{fb(?:-rt)?\|([^|}]+).*?\}\}", r"\1", text, flags=re.IGNORECASE)
 
     # Remove {{flagicon|...}}
@@ -746,28 +746,48 @@ async def scrape_group_stage(use_wc2022_for_testing: bool = False) -> dict:
     Scrape the group stage summary page and return parsed matches + standings.
     Returns a dict with keys: 'matches', 'error'.
     """
-    page = WC2022_GROUP_STAGE_PAGE if use_wc2022_for_testing else WC2026_GROUP_STAGE_PAGE
     start = time.monotonic()
-
-    wikitext = await fetch_wikitext(page)
-    if not wikitext:
-        return {"matches": [], "error": f"Failed to fetch wikitext for {page}"}
-
-    year = 2022 if use_wc2022_for_testing else 2026
-    matches = parse_group_stage_wikitext(wikitext, year=year)
+    all_matches = []
     
-    # Fallback for group name if testing a single group page
-    group_match = re.search(r"Group_([A-L])", page)
-    if group_match:
-        fallback_group = f"Group {group_match.group(1)}"
-        for m in matches:
-            if m.group_name is None:
-                m.group_name = fallback_group
+    if use_wc2022_for_testing:
+        pages = [WC2022_GROUP_STAGE_PAGE]
+        year = 2022
+    else:
+        pages = [
+            "2026_FIFA_World_Cup_Group_A", "2026_FIFA_World_Cup_Group_B",
+            "2026_FIFA_World_Cup_Group_C", "2026_FIFA_World_Cup_Group_D",
+            "2026_FIFA_World_Cup_Group_E", "2026_FIFA_World_Cup_Group_F",
+            "2026_FIFA_World_Cup_Group_G", "2026_FIFA_World_Cup_Group_H",
+            "2026_FIFA_World_Cup_Group_I", "2026_FIFA_World_Cup_Group_J",
+            "2026_FIFA_World_Cup_Group_K", "2026_FIFA_World_Cup_Group_L"
+        ]
+        year = 2026
+
+    for page in pages:
+        wikitext = await fetch_wikitext(page)
+        if not wikitext:
+            logger.warning(f"Failed to fetch wikitext for {page}")
+            continue
+
+        matches = parse_group_stage_wikitext(wikitext, year=year)
+        
+        # Fallback for group name if testing a single group page
+        group_match = re.search(r"Group_([A-L])", page)
+        if group_match:
+            fallback_group = f"Group {group_match.group(1)}"
+            for m in matches:
+                if m.group_name is None:
+                    m.group_name = fallback_group
+                    
+        all_matches.extend(matches)
+        await asyncio.sleep(0.5)
 
     elapsed_ms = int((time.monotonic() - start) * 1000)
-    logger.info("Scraped group stage: %d matches in %dms", len(matches), elapsed_ms)
-
-    return {"matches": matches, "error": None, "elapsed_ms": elapsed_ms, "page": page}
+    return {
+        "matches": all_matches,
+        "elapsed_ms": elapsed_ms,
+        "error": None
+    }
 
 
 async def scrape_match_detail(wikipedia_title: str) -> dict:
