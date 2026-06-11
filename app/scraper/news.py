@@ -60,11 +60,34 @@ async def fetch_latest_news(limit: int = 4) -> List[Dict[Any, Any]]:
     try:
         # We can use asyncio.to_thread since feedparser is synchronous
         import asyncio
+        import urllib.request
         from datetime import timezone
-        espn_feed, sky_feed = await asyncio.gather(
-            asyncio.to_thread(feedparser.parse, ESPN_RSS),
+        
+        # Download ESPN RSS feed content with headers that bypass AWS WAF blocks on cloud servers
+        def get_espn_xml():
+            try:
+                url = ESPN_RSS
+                req = urllib.request.Request(url)
+                # Simulating a scraper-safe User-Agent (like Wget or crawler bot)
+                req.add_header('User-Agent', 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)')
+                req.add_header('Accept', 'application/rss+xml, application/xml, text/xml, */*')
+                with urllib.request.urlopen(req, timeout=4) as response:
+                    if response.status == 200:
+                        return response.read()
+            except Exception as e:
+                logger.warn(f"Failed to pull ESPN XML via custom headers: {e}")
+            return None
+
+        espn_xml, sky_feed = await asyncio.gather(
+            asyncio.to_thread(get_espn_xml),
             asyncio.to_thread(feedparser.parse, SKYSPORTS_RSS)
         )
+        
+        # Parse ESPN Feed from downloaded string, or fallback to standard parse
+        if espn_xml:
+            espn_feed = feedparser.parse(espn_xml)
+        else:
+            espn_feed = await asyncio.to_thread(feedparser.parse, ESPN_RSS)
         
         # Parse ESPN
         for entry in espn_feed.entries:
