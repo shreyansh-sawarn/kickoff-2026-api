@@ -7,8 +7,8 @@ import re
 
 logger = logging.getLogger(__name__)
 
-# ESPN Soccer RSS
-ESPN_RSS = "https://www.espn.com/espn/rss/soccer/news"
+# BBC Sport Football RSS
+BBC_RSS = "http://feeds.bbci.co.uk/sport/football/rss.xml"
 # SkySports Football RSS
 SKYSPORTS_RSS = "https://www.skysports.com/rss/12040"
 
@@ -24,6 +24,15 @@ def clean_html(raw_html: str) -> str:
 
 def extract_image(entry) -> str:
     """Extracts an image URL from an RSS entry if available."""
+    # Check media_thumbnail (BBC)
+    if hasattr(entry, 'media_thumbnail'):
+        for thumb in entry.media_thumbnail:
+            if 'url' in thumb:
+                url = thumb['url']
+                if '/240/' in url:
+                    url = url.replace('/240/', '/800/')
+                return url
+
     # Check media_content
     if hasattr(entry, 'media_content'):
         for media in entry.media_content:
@@ -45,7 +54,7 @@ def extract_image(entry) -> str:
                 if match:
                     return match.group(1)
                 
-    # ESPN RSS specific: Check links or specific tag attributes
+    # ESPN / BBC / SkySports specific links
     if hasattr(entry, 'links'):
         for link in entry.links:
             if 'href' in link and any(ext in link['href'].lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']):
@@ -63,34 +72,33 @@ async def fetch_latest_news(limit: int = 4) -> List[Dict[Any, Any]]:
         import urllib.request
         from datetime import timezone
         
-        # Download ESPN RSS feed content with headers that bypass AWS WAF blocks on cloud servers
-        def get_espn_xml():
+        # Download BBC RSS feed content
+        def get_bbc_xml():
             try:
-                url = ESPN_RSS
+                url = BBC_RSS
                 req = urllib.request.Request(url)
-                # Simulating a scraper-safe User-Agent (like Wget or crawler bot)
                 req.add_header('User-Agent', 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)')
                 req.add_header('Accept', 'application/rss+xml, application/xml, text/xml, */*')
                 with urllib.request.urlopen(req, timeout=4) as response:
                     if response.status == 200:
                         return response.read()
             except Exception as e:
-                logger.warn(f"Failed to pull ESPN XML via custom headers: {e}")
+                logger.warn(f"Failed to pull BBC XML: {e}")
             return None
 
-        espn_xml, sky_feed = await asyncio.gather(
-            asyncio.to_thread(get_espn_xml),
+        bbc_xml, sky_feed = await asyncio.gather(
+            asyncio.to_thread(get_bbc_xml),
             asyncio.to_thread(feedparser.parse, SKYSPORTS_RSS)
         )
         
-        # Parse ESPN Feed from downloaded string, or fallback to standard parse
-        if espn_xml:
-            espn_feed = feedparser.parse(espn_xml)
+        # Parse BBC Feed from downloaded string, or fallback to standard parse
+        if bbc_xml:
+            bbc_feed = feedparser.parse(bbc_xml)
         else:
-            espn_feed = await asyncio.to_thread(feedparser.parse, ESPN_RSS)
+            bbc_feed = await asyncio.to_thread(feedparser.parse, BBC_RSS)
         
-        # Parse ESPN
-        for entry in espn_feed.entries:
+        # Parse BBC
+        for entry in bbc_feed.entries:
             try:
                 dt = parsedate_to_datetime(entry.published) if hasattr(entry, 'published') else datetime.now(timezone.utc)
                 if dt.tzinfo is None:
@@ -107,7 +115,7 @@ async def fetch_latest_news(limit: int = 4) -> List[Dict[Any, Any]]:
                 "summary": summary_text,
                 "link": entry.link,
                 "image_url": extract_image(entry),
-                "source": "ESPN",
+                "source": "BBC Sport",
                 "published_at": dt
             })
             
