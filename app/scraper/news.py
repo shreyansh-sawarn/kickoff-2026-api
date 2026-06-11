@@ -111,7 +111,11 @@ async def fetch_latest_news(limit: int = 4) -> List[Dict[Any, Any]]:
         
         # Filter for World Cup / International keywords, while excluding Tennis/Wimbledon keywords
         keywords = ["world cup", "fifa", "international", "qualifier", "national team", "worldcup", "tournament"]
-        excluded_keywords = ["wimbledon", "tennis", "grand slam", "djokovic", "alcaraz", "sw19", "nadal", "federer", "court"]
+        excluded_keywords = [
+            "wimbledon", "tennis", "grand slam", "djokovic", "alcaraz", "sw19", "nadal", "federer", "court",
+            "darts", "pdc", "littler", "humphries", "bullseye", "cricket", "ipl", "t20", "rugby", "golf", "f1",
+            "formula 1", "nba", "basketball", "nfl", "super bowl", "hockey"
+        ]
         
         filtered_articles = []
         for a in articles:
