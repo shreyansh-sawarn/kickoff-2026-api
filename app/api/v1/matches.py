@@ -27,6 +27,7 @@ def _match_to_dict(match: Match, include_events: bool = False) -> dict:
         "group_name": match.group_name,
         "stage": match.stage,
         "status": match.status,
+        "clock": match.clock,
         "home_score": match.home_score,
         "away_score": match.away_score,
         "home_score_ht": match.home_score_ht,
@@ -35,7 +36,19 @@ def _match_to_dict(match: Match, include_events: bool = False) -> dict:
         "last_scraped_at": match.last_scraped_at.isoformat() if match.last_scraped_at else None,
     }
     if include_events:
-        d["events"] = [_event_to_dict(e) for e in sorted(match.events, key=lambda e: e.minute or 0)]
+        unique_events = {}
+        for e in match.events:
+            key = (e.type, e.minute, e.player_name, e.team_code)
+            if key in unique_events:
+                existing = unique_events[key]
+                if e.is_overridden and not existing.is_overridden:
+                    unique_events[key] = e
+                elif not existing.is_overridden and e.extra_info and not existing.extra_info:
+                    unique_events[key] = e
+            else:
+                unique_events[key] = e
+                
+        d["events"] = [_event_to_dict(e) for e in sorted(unique_events.values(), key=lambda e: e.minute or 0)]
     return d
 
 
@@ -70,6 +83,10 @@ def _stat_to_dict(stat: MatchStat) -> dict:
         "shots_on_target": stat.shots_on_target,
         "corners": stat.corners,
         "fouls": stat.fouls,
+        "yellow_cards": stat.yellow_cards,
+        "red_cards": stat.red_cards,
+        "yellowCards": stat.yellow_cards,
+        "redCards": stat.red_cards,
     }
 
 @router.get("/")

@@ -18,6 +18,7 @@ dependencies = [
     "lxml>=5.2.0",
     "soccerdata>=1.9.0",
     "feedparser>=6.0.11",
+    "scrapling>=0.2.0",
 ]
 
 [tool.uv]

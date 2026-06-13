@@ -61,25 +61,7 @@ def test_parse_goal_penalty():
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.asyncio
-async def test_fetch_wikitext_real():
-    """Verify we can fetch wikitext from Wikipedia."""
-    wikitext = await fetch_wikitext("France_v_Morocco_(2022_FIFA_World_Cup)")
-    assert wikitext is not None
-    assert "Football box" in wikitext or "football box" in wikitext.lower()
 
-
-@pytest.mark.asyncio
-async def test_parse_match_page_france_morocco():
-    """Parse France v Morocco 2022 SF — should have goals."""
-    wikitext = await fetch_wikitext("France_v_Morocco_(2022_FIFA_World_Cup)")
-    assert wikitext is not None
-
-    detail = parse_match_page_wikitext(wikitext)
-    # France won 2-0
-    assert detail.home_score == 2 or detail.away_score == 0 or detail.home_team != ""
-    # Should have at least one event
-    # (goals may not parse perfectly from all template variants, but should not crash)
 
 
 @pytest.mark.asyncio

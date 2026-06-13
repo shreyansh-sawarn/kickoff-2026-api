@@ -14,7 +14,7 @@ import logging
 import re
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 import httpx
@@ -390,21 +390,26 @@ def _parse_football_box_template(template: str, year: int = 2026) -> Optional[Pa
     if goals2_raw:
         events.extend(_parse_goals(goals2_raw, "away"))
 
+    # Date and Time
+    date_str = extract_field("date") or ""
+    time_str = extract_field("time") or ""
+    kickoff = _parse_start_date_template(date_str, time_str)
+
     # Determine status
     if home_score is not None and away_score is not None:
         status = "finished"
     else:
-        status = "scheduled"
+        now = datetime.now(timezone.utc)
+        if kickoff and kickoff <= now:
+            status = "live"
+        else:
+            status = "scheduled"
 
     # Wikipedia title for individual match page
     # Pattern: Home_v_Away_(2026_FIFA_World_Cup)
     home_slug = home.replace(" ", "_")
     away_slug = away.replace(" ", "_")
     wiki_title = f"{home_slug}_v_{away_slug}_({year}_FIFA_World_Cup)"
-
-    # Date
-    date_str = extract_field("date") or ""
-    kickoff = _parse_start_date_template(date_str)
 
     venue = _clean_wiki_markup(extract_field("stadium") or "")
 
@@ -438,24 +443,57 @@ def _parse_score(score_raw: str) -> tuple[Optional[int], Optional[int]]:
     return None, None
 
 
-def _parse_start_date_template(s: str) -> Optional[datetime]:
+def _parse_start_date_template(date_s: str, time_s: str = "") -> Optional[datetime]:
     """
-    Parse {{Start date|2026|6|11|20|0|0}} → datetime(2026, 6, 11, 20, 0, 0, tzinfo=UTC)
+    Parse {{Start date|2026|6|11}} and time string like "12:00 p.m. [[UTC-05:00|UTC-5]]"
+    Returns a timezone-aware datetime in UTC.
     """
     m = re.search(
         r"\{\{Start date\|(\d{4})\|(\d{1,2})\|(\d{1,2})(?:\|(\d{1,2})(?:\|(\d{1,2}))?)?",
-        s,
+        date_s,
         re.IGNORECASE,
     )
-    if m:
-        year, month, day = int(m.group(1)), int(m.group(2)), int(m.group(3))
-        hour = int(m.group(4)) if m.group(4) else 0
-        minute = int(m.group(5)) if m.group(5) else 0
-        try:
-            return datetime(year, month, day, hour, minute, tzinfo=timezone.utc)
-        except ValueError:
-            return None
-    return None
+    if not m:
+        return None
+        
+    year, month, day = int(m.group(1)), int(m.group(2)), int(m.group(3))
+    hour = int(m.group(4)) if m.group(4) else 0
+    minute = int(m.group(5)) if m.group(5) else 0
+
+    if time_s:
+        # Time string formats: "12:00 [[UTC-05:00|UTC-5]]" or "15:00 CST (UTC-5)"
+        m_time = re.search(r"(\d{1,2}):(\d{2})", time_s)
+        if m_time:
+            hour = int(m_time.group(1))
+            minute = int(m_time.group(2))
+            # handle p.m. / a.m.
+            if "p.m." in time_s.lower() or "pm" in time_s.lower():
+                if hour < 12:
+                    hour += 12
+            if "a.m." in time_s.lower() or "am" in time_s.lower():
+                if hour == 12:
+                    hour = 0
+            
+            # handle UTC offset
+            time_s_clean = time_s.replace("−", "-") # replace unicode minus
+            m_utc = re.search(r"UTC\s*([+-]\d{1,2})(?::(\d{2}))?", time_s_clean, re.IGNORECASE)
+            if m_utc:
+                offset_hours = int(m_utc.group(1))
+                offset_minutes = int(m_utc.group(2)) if m_utc.group(2) else 0
+                if offset_hours < 0:
+                    offset_minutes = -offset_minutes
+                
+                try:
+                    dt_local = datetime(year, month, day, hour, minute)
+                    offset = timedelta(hours=offset_hours, minutes=offset_minutes)
+                    return (dt_local - offset).replace(tzinfo=timezone.utc)
+                except ValueError:
+                    pass
+
+    try:
+        return datetime(year, month, day, hour, minute, tzinfo=timezone.utc)
+    except ValueError:
+        return None
 
 
 def _clean_wiki_markup(text: str) -> str:
@@ -465,8 +503,8 @@ def _clean_wiki_markup(text: str) -> str:
     if not text:
         return ""
 
-    # Extract team code from {{#invoke:flagg|...|QAT}} or {{fb|QAT}}
-    text = re.sub(r"\{\{#invoke:flagg[^}]*\|([^|}]+)\}\}", r"\1", text, flags=re.IGNORECASE)
+    # Extract team code from {{#invoke:flag|fb-rt|MEX}} or {{fb|QAT}}
+    text = re.sub(r"\{\{#invoke:flagg?[^}]*\|([^|}]+)\}\}", r"\1", text, flags=re.IGNORECASE)
     text = re.sub(r"\{\{fb(?:-rt)?\|([^|}]+).*?\}\}", r"\1", text, flags=re.IGNORECASE)
 
     # Remove {{flagicon|...}}
@@ -712,28 +750,48 @@ async def scrape_group_stage(use_wc2022_for_testing: bool = False) -> dict:
     Scrape the group stage summary page and return parsed matches + standings.
     Returns a dict with keys: 'matches', 'error'.
     """
-    page = WC2022_GROUP_STAGE_PAGE if use_wc2022_for_testing else WC2026_GROUP_STAGE_PAGE
     start = time.monotonic()
-
-    wikitext = await fetch_wikitext(page)
-    if not wikitext:
-        return {"matches": [], "error": f"Failed to fetch wikitext for {page}"}
-
-    year = 2022 if use_wc2022_for_testing else 2026
-    matches = parse_group_stage_wikitext(wikitext, year=year)
+    all_matches = []
     
-    # Fallback for group name if testing a single group page
-    group_match = re.search(r"Group_([A-L])", page)
-    if group_match:
-        fallback_group = f"Group {group_match.group(1)}"
-        for m in matches:
-            if m.group_name is None:
-                m.group_name = fallback_group
+    if use_wc2022_for_testing:
+        pages = [WC2022_GROUP_STAGE_PAGE]
+        year = 2022
+    else:
+        pages = [
+            "2026_FIFA_World_Cup_Group_A", "2026_FIFA_World_Cup_Group_B",
+            "2026_FIFA_World_Cup_Group_C", "2026_FIFA_World_Cup_Group_D",
+            "2026_FIFA_World_Cup_Group_E", "2026_FIFA_World_Cup_Group_F",
+            "2026_FIFA_World_Cup_Group_G", "2026_FIFA_World_Cup_Group_H",
+            "2026_FIFA_World_Cup_Group_I", "2026_FIFA_World_Cup_Group_J",
+            "2026_FIFA_World_Cup_Group_K", "2026_FIFA_World_Cup_Group_L"
+        ]
+        year = 2026
+
+    for page in pages:
+        wikitext = await fetch_wikitext(page)
+        if not wikitext:
+            logger.warning(f"Failed to fetch wikitext for {page}")
+            continue
+
+        matches = parse_group_stage_wikitext(wikitext, year=year)
+        
+        # Fallback for group name if testing a single group page
+        group_match = re.search(r"Group_([A-L])", page)
+        if group_match:
+            fallback_group = f"Group {group_match.group(1)}"
+            for m in matches:
+                if m.group_name is None:
+                    m.group_name = fallback_group
+                    
+        all_matches.extend(matches)
+        await asyncio.sleep(0.5)
 
     elapsed_ms = int((time.monotonic() - start) * 1000)
-    logger.info("Scraped group stage: %d matches in %dms", len(matches), elapsed_ms)
-
-    return {"matches": matches, "error": None, "elapsed_ms": elapsed_ms, "page": page}
+    return {
+        "matches": all_matches,
+        "elapsed_ms": elapsed_ms,
+        "error": None
+    }
 
 
 async def scrape_match_detail(wikipedia_title: str) -> dict:

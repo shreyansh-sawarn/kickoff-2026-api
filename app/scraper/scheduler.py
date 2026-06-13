@@ -31,15 +31,26 @@ def _is_night_utc() -> bool:
     return time(0, 0) <= now_utc < time(8, 0)
 
 
-def _determine_interval() -> int:
+async def _determine_interval() -> int:
     """
-    Determine the appropriate poll interval.
-
-    TODO Phase 2: check DB for currently live matches to use 60s interval.
-    For now: use night vs idle as a simple heuristic.
+    Determine the appropriate poll interval based on live matches.
     """
     if _is_night_utc():
         return settings.poll_interval_night
+        
+    from app.db.database import AsyncSessionLocal
+    from app.db.models import Match
+    from sqlalchemy import select
+    
+    try:
+        async with AsyncSessionLocal() as session:
+            stmt = select(Match).where(Match.status == "live")
+            result = await session.execute(stmt)
+            if result.scalars().first():
+                return settings.poll_interval_live
+    except Exception as e:
+        logger.error("Failed to check for live matches: %s", e)
+        
     return settings.poll_interval_idle
 
 
@@ -53,38 +64,38 @@ async def _scrape_job() -> None:
         logger.error("Scrape job failed: %s", exc, exc_info=True)
 
     # Reschedule with potentially updated interval
-    new_interval = _determine_interval()
+    new_interval = await _determine_interval()
     global _current_interval
     if new_interval != _current_interval:
         _current_interval = new_interval
         logger.info("Adjusting poll interval to %ds", new_interval)
         job = scheduler.get_job("scrape_job")
         if job:
-            job.reschedule(trigger=IntervalTrigger(seconds=new_interval))
+            job.reschedule(trigger=IntervalTrigger(seconds=new_interval, jitter=10))
 
 
-async def _fbref_scrape_job() -> None:
-    """FBref scrape job executed every 3 hours."""
-    from app.scraper.fbref import run_fbref_scraper
+async def _soccerdata_scrape_job() -> None:
+    """Soccerdata (FBref/Sofascore) scrape job executed every 3-4 hours."""
+    from app.scraper.soccerdata_scraper import run_fbref_scraper
     try:
         await run_fbref_scraper()
     except Exception as exc:
-        logger.error("FBref scrape job failed: %s", exc, exc_info=True)
+        logger.error("Soccerdata scrape job failed: %s", exc, exc_info=True)
 
 
-def start_scheduler() -> None:
+async def start_scheduler() -> None:
     """Start the APScheduler. Called from FastAPI lifespan."""
     if not settings.scraper_enabled:
         logger.info("Scraper is disabled (SCRAPER_ENABLED=false). Scheduler not started.")
         return
 
-    initial_interval = _determine_interval()
+    initial_interval = await _determine_interval()
     global _current_interval
     _current_interval = initial_interval
 
     scheduler.add_job(
         _scrape_job,
-        trigger=IntervalTrigger(seconds=initial_interval),
+        trigger=IntervalTrigger(seconds=initial_interval, jitter=10),
         id="scrape_job",
         name="Wikipedia Group Stage Scraper",
         replace_existing=True,
@@ -93,10 +104,10 @@ def start_scheduler() -> None:
     
     # 10800 seconds = 3 hours
     scheduler.add_job(
-        _fbref_scrape_job,
+        _soccerdata_scrape_job,
         trigger=IntervalTrigger(seconds=10800),
-        id="fbref_scrape_job",
-        name="FBref Minutes Played Scraper",
+        id="soccerdata_scrape_job",
+        name="Soccerdata Post-Match Scraper",
         replace_existing=True,
         max_instances=1,
     )
@@ -140,10 +151,10 @@ async def trigger_manual_scrape() -> dict:
         return {"success": False, "error": str(exc)}
 
 
-def set_scraper_enabled(enabled: bool) -> None:
+async def set_scraper_enabled(enabled: bool) -> None:
     """Enable or disable the scraper at runtime."""
     settings.scraper_enabled = enabled
     if enabled and not scheduler.running:
-        start_scheduler()
+        await start_scheduler()
     elif not enabled and scheduler.running:
         stop_scheduler()

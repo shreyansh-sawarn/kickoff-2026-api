@@ -35,6 +35,7 @@ class Match(Base):
     away_score: Mapped[Optional[int]] = mapped_column(Integer)
     home_score_ht: Mapped[Optional[int]] = mapped_column(Integer)
     away_score_ht: Mapped[Optional[int]] = mapped_column(Integer)
+    clock: Mapped[Optional[str]] = mapped_column(String)  # Live match clock (e.g. 34', HT, FT)
     source: Mapped[Optional[str]] = mapped_column(String)  # wikipedia|fifa|override
     wikipedia_url: Mapped[Optional[str]] = mapped_column(Text)
     last_scraped_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
@@ -81,6 +82,8 @@ class MatchStat(Base):
     shots_on_target: Mapped[Optional[int]] = mapped_column(Integer)
     corners: Mapped[Optional[int]] = mapped_column(Integer)
     fouls: Mapped[Optional[int]] = mapped_column(Integer)
+    yellow_cards: Mapped[Optional[int]] = mapped_column(Integer, default=0)
+    red_cards: Mapped[Optional[int]] = mapped_column(Integer, default=0)
 
     # Relationships
     match: Mapped["Match"] = relationship("Match", back_populates="stats")

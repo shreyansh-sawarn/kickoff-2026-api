@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def _sync_fetch_and_parse_fbref():
     # soccerdata automatically bypasses Cloudflare and caches data
-    fbref = sd.FBref(leagues="INT-World Cup", seasons=2022)
+    fbref = sd.FBref(leagues="INT-World Cup", seasons=2026)
     df = fbref.read_player_season_stats(stat_type="standard")
     return df
 

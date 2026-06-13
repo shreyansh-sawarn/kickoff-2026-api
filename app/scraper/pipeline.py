@@ -22,7 +22,7 @@ from app.scraper.wikipedia import (
     parse_standings_template,
     fetch_standings_template
 )
-from app.scraper.fifa import scrape_fifa_match
+from app.scraper.live_scraper import scrape_live_match
 from app.services.webhooks import dispatch_webhook
 
 logger = logging.getLogger(__name__)
@@ -105,8 +105,8 @@ async def run_scrape_pipeline() -> dict:
             events_to_upsert = detail.events
             source_for_events = "wikipedia"
 
-            # 2. Scrape FIFA Match Center (Mock for 2022)
-            fifa_match = await scrape_fifa_match(match.home_team_code, match.away_team_code)
+            # 2. Scrape Live Match Center (ESPN/Sofascore)
+            fifa_match = await scrape_live_match(match.home_team, match.away_team)
             if fifa_match:
                 # Hybrid Truth: Check for score conflict
                 if fifa_match.home_score != match.home_score or fifa_match.away_score != match.away_score:
@@ -120,6 +120,12 @@ async def run_scrape_pipeline() -> dict:
                     }
                     await dispatch_webhook("system.conflict", conflict_payload)
                     await _log_scrape(db, "fifa_conflict", title, success=False, changes=0, error=f"Wiki({match.home_score}-{match.away_score}) != FIFA({fifa_match.home_score}-{fifa_match.away_score})")
+
+                # UPDATE SCORES AND CLOCK FROM LIVE DATA
+                if match.source != "override":
+                    match.home_score = fifa_match.home_score
+                    match.away_score = fifa_match.away_score
+                    match.clock = fifa_match.clock
 
                 # Trust FIFA for events
                 events_to_upsert = fifa_match.events
@@ -345,6 +351,8 @@ async def _upsert_stats(db: AsyncSession, match: Match, stats: list["ParsedStat"
             shots_on_target=ps.shots_on_target,
             corners=ps.corners,
             fouls=ps.fouls,
+            yellow_cards=ps.yellow_cards,
+            red_cards=ps.red_cards,
         )
         db.add(stat)
 

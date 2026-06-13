@@ -280,5 +280,5 @@ async def toggle_scraper(request: Request):
     from app.scraper.scheduler import set_scraper_enabled
 
     new_state = not settings.scraper_enabled
-    set_scraper_enabled(new_state)
+    await set_scraper_enabled(new_state)
     return RedirectResponse("/admin/scrapers", status_code=302)
