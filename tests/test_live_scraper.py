@@ -3,7 +3,7 @@ import time
 from datetime import datetime, timezone
 from app.db.database import AsyncSessionLocal
 from app.db.models import WebhookSubscription, Event, Match, Lineup, MatchStat
-from app.scraper.fifa import scrape_fifa_match
+from app.scraper.live_scraper import scrape_live_match
 from app.scraper.pipeline import _upsert_events, _upsert_lineups, _upsert_stats
 from app.services.webhooks import dispatch_webhook
 from sqlalchemy import select
@@ -29,7 +29,7 @@ async def test_fifa():
             print(f"Match found: {match.home_team} {match.home_score} - {match.away_score} {match.away_team}")
             
             # Scrape FIFA
-            fifa_match = await scrape_fifa_match(match.home_team_code, match.away_team_code)
+            fifa_match = await scrape_live_match(match.home_team_code, match.away_team_code)
             if fifa_match:
                 if fifa_match.home_score != match.home_score or fifa_match.away_score != match.away_score:
                     print("CONFLICT DETECTED!")

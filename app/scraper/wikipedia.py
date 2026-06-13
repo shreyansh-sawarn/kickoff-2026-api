@@ -390,22 +390,26 @@ def _parse_football_box_template(template: str, year: int = 2026) -> Optional[Pa
     if goals2_raw:
         events.extend(_parse_goals(goals2_raw, "away"))
 
+    # Date and Time
+    date_str = extract_field("date") or ""
+    time_str = extract_field("time") or ""
+    kickoff = _parse_start_date_template(date_str, time_str)
+
     # Determine status
     if home_score is not None and away_score is not None:
         status = "finished"
     else:
-        status = "scheduled"
+        now = datetime.now(timezone.utc)
+        if kickoff and kickoff <= now:
+            status = "live"
+        else:
+            status = "scheduled"
 
     # Wikipedia title for individual match page
     # Pattern: Home_v_Away_(2026_FIFA_World_Cup)
     home_slug = home.replace(" ", "_")
     away_slug = away.replace(" ", "_")
     wiki_title = f"{home_slug}_v_{away_slug}_({year}_FIFA_World_Cup)"
-
-    # Date and Time
-    date_str = extract_field("date") or ""
-    time_str = extract_field("time") or ""
-    kickoff = _parse_start_date_template(date_str, time_str)
 
     venue = _clean_wiki_markup(extract_field("stadium") or "")
 

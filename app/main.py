@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
     logger.info("Database ready.")
 
     # Start scraper scheduler
-    start_scheduler()
+    await start_scheduler()
 
     yield
 

@@ -28,20 +28,20 @@ async def test_health(client):
 
 
 @pytest.mark.asyncio
-async def test_matches_empty(client):
+async def test_matches(client):
     response = await client.get("/api/v1/matches/")
     assert response.status_code == 200
     data = response.json()
-    assert data["count"] == 0
-    assert data["matches"] == []
+    assert isinstance(data["count"], int)
+    assert isinstance(data["matches"], list)
 
 
 @pytest.mark.asyncio
-async def test_scorers_empty(client):
+async def test_scorers(client):
     response = await client.get("/api/v1/scorers")
     assert response.status_code == 200
     data = response.json()
-    assert data["count"] == 0
+    assert isinstance(data["count"], int)
 
 
 @pytest.mark.asyncio
