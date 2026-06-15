@@ -42,3 +42,9 @@ htmlcov/
 # Scraping artifacts
 downloaded_files/
 temp_*.json
+
+*.db-journal
+*.sqlite3
+*.db-wal
+*.db-shm
+
