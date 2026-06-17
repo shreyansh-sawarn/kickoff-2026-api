@@ -84,11 +84,13 @@ async def run_scrape_pipeline() -> dict:
 
         # --- Step 2: Individual match pages for live/recent matches ---
         # Get matches with a wikipedia_url that are live or finished recently
-        stmt = select(Match).where(Match.status.in_(["live", "finished"]))
+        # Get matches with a wikipedia_url that are live or finished recently
+        # Prioritize live matches, then sort by kickoff
+        stmt = select(Match).where(Match.status.in_(["live", "finished"])).order_by(Match.status.desc(), Match.kickoff_utc.desc())
         result_db = await db.execute(stmt)
         active_matches = result_db.scalars().all()
 
-        for match in active_matches[:10]:  # cap at 10 per cycle to avoid rate limiting
+        for match in active_matches[:20]:  # cap at 20 per cycle to avoid rate limiting
             if not match.wikipedia_url:
                 continue
             title = match.wikipedia_url  # stored as page title, not full URL
@@ -105,8 +107,8 @@ async def run_scrape_pipeline() -> dict:
             events_to_upsert = detail.events
             source_for_events = "wikipedia"
 
-            # 2. Scrape Live Match Center (ESPN/Sofascore)
-            fifa_match = await scrape_live_match(match.home_team, match.away_team)
+            # Overwrite Wikipedia data with ESPN live data if available
+            fifa_match = await scrape_live_match(match.home_team, match.away_team, match.kickoff_utc)
             if fifa_match:
                 # Hybrid Truth: Check for score conflict
                 if fifa_match.home_score != match.home_score or fifa_match.away_score != match.away_score:
@@ -394,7 +396,7 @@ def _team_code(team_name: str) -> Optional[str]:
         "New Zealand": "NZL", "Nigeria": "NGA", "Egypt": "EGY",
         "Algeria": "ALG", "Ivory Coast": "CIV", "Mali": "MLI",
     }
-    return CODES.get(team_name)
+    return CODES.get(team_name) or team_name[:3].upper()
 
 
 async def _log_scrape(

@@ -53,3 +53,9 @@ async def status(db: AsyncSession = Depends(get_db)):
         "sources_active": ["wikipedia"],
         "db_version": "1",
     }
+
+@router.post("/trigger-scrape")
+async def trigger_scrape_endpoint():
+    from app.scraper.scheduler import trigger_manual_scrape
+    return await trigger_manual_scrape()
+

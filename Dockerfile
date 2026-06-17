@@ -2,7 +2,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install uv
+# Install uv and curl_cffi OS dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libnss3 \
+    && rm -rf /var/lib/apt/lists/*
 RUN pip install uv
 
 # Copy dependency files

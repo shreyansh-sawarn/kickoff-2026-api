@@ -36,64 +36,74 @@ class ParsedFifaMatch:
     lineups: list[ParsedLineup]
     stats: list[ParsedStat]
 
-async def scrape_live_match(home_team: str, away_team: str) -> Optional[ParsedFifaMatch]:
-    """
-    Live match scraper using Scrapling to poll ESPN's hidden JSON API.
-    """
-    try:
-        from scrapling import Fetcher
-    except ImportError:
-        logger.error("Scrapling not installed.")
-        return None
+import time
+import datetime
 
-    fetcher = Fetcher(auto_match=False) # lightweight fetch without rendering
-    
+async def scrape_live_match(home_team: str, away_team: str, match_date: Optional[datetime.datetime] = None) -> Optional[ParsedFifaMatch]:
+    """
+    Live match scraper polling ESPN's web API.
+    """
+    import urllib.request
+    import json
+
     # 1. Resolve Game ID from ESPN scoreboard for FIFA World Cup
-    # We poll the current day (or specific dates) to find the match
-    import datetime
-    today = datetime.datetime.utcnow().strftime("%Y%m%d")
-    scoreboard_url = f"http://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates={today}"
-    
-    try:
-        score_resp = fetcher.get(scoreboard_url)
-        data = score_resp.json()
-    except Exception as e:
-        logger.error(f"Failed to fetch ESPN scoreboard: {e}")
-        return None
+    dates_to_try = []
+    if match_date:
+        dates_to_try.append(match_date.strftime("%Y%m%d"))
+        dates_to_try.append((match_date - datetime.timedelta(days=1)).strftime("%Y%m%d"))
+        dates_to_try.append((match_date + datetime.timedelta(days=1)).strftime("%Y%m%d"))
+    else:
+        now = datetime.datetime.utcnow()
+        dates_to_try.append(now.strftime("%Y%m%d"))
+        dates_to_try.append((now - datetime.timedelta(days=1)).strftime("%Y%m%d"))
 
     game_id = None
     match_clock = None
     home_score = 0
     away_score = 0
-    
-    events = data.get("events", [])
-    for event in events:
-        comps = event.get("competitions", [])[0]["competitors"]
-        team1 = comps[0]["team"]["name"]
-        team2 = comps[1]["team"]["name"]
+
+    for test_date in dates_to_try:
+        scoreboard_url = f"https://site.web.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates={test_date}"
         
-        # Match teams dynamically
-        team1_names = [comps[0]["team"]["name"].lower(), comps[0]["team"].get("abbreviation", "").lower()]
-        team2_names = [comps[1]["team"]["name"].lower(), comps[1]["team"].get("abbreviation", "").lower()]
+        try:
+            req = urllib.request.Request(scoreboard_url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'})
+            with urllib.request.urlopen(req, timeout=5) as response:
+                data = json.loads(response.read().decode('utf-8'))
+        except Exception as e:
+            logger.error(f"Failed to fetch ESPN scoreboard for {test_date}: {e}")
+            continue
 
-        def matches_team(target: str, names: list) -> bool:
-            target_lower = target.lower()
-            return any(target_lower == n or target_lower in n for n in names if n)
+        events = data.get("events", [])
+        for event in events:
+            comps = event.get("competitions", [])[0]["competitors"]
+            team1 = comps[0]["team"]["name"]
+            team2 = comps[1]["team"]["name"]
+            
+            # Match teams dynamically
+            team1_names = [comps[0]["team"]["name"].lower(), comps[0]["team"].get("abbreviation", "").lower()]
+            team2_names = [comps[1]["team"]["name"].lower(), comps[1]["team"].get("abbreviation", "").lower()]
 
-        if (matches_team(home_team, team1_names) or matches_team(home_team, team2_names)) and \
-           (matches_team(away_team, team1_names) or matches_team(away_team, team2_names)):
-            game_id = event["id"]
-            match_clock = event.get("status", {}).get("displayClock")
-            short_detail = event.get("status", {}).get("type", {}).get("shortDetail")
-            if short_detail in ["HT", "FT", "FT-Pens", "AET"]:
-                match_clock = short_detail
+            def matches_team(target: str, names: list) -> bool:
+                target_lower = target.lower()
+                return any(target_lower == n or target_lower in n for n in names if n)
+
+            if (matches_team(home_team, team1_names) or matches_team(home_team, team2_names)) and \
+               (matches_team(away_team, team1_names) or matches_team(away_team, team2_names)):
+                game_id = event["id"]
+                match_clock = event.get("status", {}).get("displayClock")
+                short_detail = event.get("status", {}).get("type", {}).get("shortDetail")
+                if short_detail in ["HT", "FT", "FT-Pens", "AET"]:
+                    match_clock = short_detail
+                    
+                if matches_team(home_team, team1_names):
+                    home_score = int(comps[0].get("score", 0))
+                    away_score = int(comps[1].get("score", 0))
+                else:
+                    home_score = int(comps[1].get("score", 0))
+                    away_score = int(comps[0].get("score", 0))
+                break
                 
-            if matches_team(home_team, team1_names):
-                home_score = int(comps[0].get("score", 0))
-                away_score = int(comps[1].get("score", 0))
-            else:
-                home_score = int(comps[1].get("score", 0))
-                away_score = int(comps[0].get("score", 0))
+        if game_id:
             break
             
     if not game_id:
@@ -101,10 +111,11 @@ async def scrape_live_match(home_team: str, away_team: str) -> Optional[ParsedFi
         return None
 
     # 2. Fetch deep Match Summary (Timeline, Stats, Lineups)
-    summary_url = f"http://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event={game_id}"
+    summary_url = f"https://site.web.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event={game_id}"
     try:
-        summ_resp = fetcher.get(summary_url)
-        summ_data = summ_resp.json()
+        req2 = urllib.request.Request(summary_url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'})
+        with urllib.request.urlopen(req2, timeout=5) as response:
+            summ_data = json.loads(response.read().decode('utf-8'))
     except Exception as e:
         logger.error(f"Failed to fetch ESPN match summary: {e}")
         return None
