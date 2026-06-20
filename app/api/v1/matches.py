@@ -34,6 +34,8 @@ def _match_to_dict(match: Match, include_events: bool = False) -> dict:
         "away_score_ht": match.away_score_ht,
         "source": match.source,
         "last_scraped_at": match.last_scraped_at.isoformat() if match.last_scraped_at else None,
+        "home_formation": match.home_formation,
+        "away_formation": match.away_formation,
     }
     if include_events:
         unique_events = {}
@@ -147,7 +149,7 @@ async def get_match(match_id: str, db: AsyncSession = Depends(get_db)):
 @router.get("/{match_id}/lineups")
 async def get_match_lineups(match_id: str, db: AsyncSession = Depends(get_db)):
     """Get starting XI and substitutes for a match."""
-    stmt = select(Lineup).where(Lineup.match_id == match_id)
+    stmt = select(Lineup).where(Lineup.match_id == match_id).order_by(Lineup.id)
     result = await db.execute(stmt)
     lineups = result.scalars().all()
     if not lineups:

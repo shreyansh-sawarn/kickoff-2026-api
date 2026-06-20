@@ -2,9 +2,12 @@
 Phase 1: Live Match Scraper using Scrapling targeting ESPN JSON API
 """
 import logging
+import json
+import asyncio
 from typing import Optional
 from dataclasses import dataclass
 from app.scraper.wikipedia import ParsedEvent
+import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +38,8 @@ class ParsedFifaMatch:
     events: list[ParsedEvent]
     lineups: list[ParsedLineup]
     stats: list[ParsedStat]
+    home_formation: Optional[str] = None
+    away_formation: Optional[str] = None
 
 import time
 import datetime
@@ -46,29 +51,39 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
     import urllib.request
     import json
 
-    # 1. Resolve Game ID from ESPN scoreboard for FIFA World Cup
     dates_to_try = []
+
     if match_date:
         dates_to_try.append(match_date.strftime("%Y%m%d"))
         dates_to_try.append((match_date - datetime.timedelta(days=1)).strftime("%Y%m%d"))
         dates_to_try.append((match_date + datetime.timedelta(days=1)).strftime("%Y%m%d"))
     else:
         now = datetime.datetime.utcnow()
-        dates_to_try.append(now.strftime("%Y%m%d"))
-        dates_to_try.append((now - datetime.timedelta(days=1)).strftime("%Y%m%d"))
+        dates_to_try = [
+            now.strftime("%Y%m%d"),
+            (now - datetime.timedelta(days=1)).strftime("%Y%m%d"),
+            (now - datetime.timedelta(days=2)).strftime("%Y%m%d"),
+            (now - datetime.timedelta(days=3)).strftime("%Y%m%d"),
+            (now - datetime.timedelta(days=4)).strftime("%Y%m%d"),
+            (now - datetime.timedelta(days=5)).strftime("%Y%m%d"),
+            (now + datetime.timedelta(days=1)).strftime("%Y%m%d"),
+        ]
+    home_score = 0
+    away_score = 0
 
     game_id = None
     match_clock = None
-    home_score = 0
-    away_score = 0
 
     for test_date in dates_to_try:
         scoreboard_url = f"https://site.web.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates={test_date}"
         
-        try:
+        def fetch_espn():
             req = urllib.request.Request(scoreboard_url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'})
             with urllib.request.urlopen(req, timeout=5) as response:
-                data = json.loads(response.read().decode('utf-8'))
+                return json.loads(response.read().decode('utf-8'))
+
+        try:
+            data = await asyncio.to_thread(fetch_espn)
         except Exception as e:
             logger.error(f"Failed to fetch ESPN scoreboard for {test_date}: {e}")
             continue
@@ -96,11 +111,16 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
                     match_clock = short_detail
                     
                 if matches_team(home_team, team1_names):
+                    espn_home_idx = 0
                     home_score = int(comps[0].get("score", 0))
                     away_score = int(comps[1].get("score", 0))
                 else:
+                    espn_home_idx = 1
                     home_score = int(comps[1].get("score", 0))
                     away_score = int(comps[0].get("score", 0))
+                    
+                final_team1_names = team1_names
+                final_team2_names = team2_names
                 break
                 
         if game_id:
@@ -112,10 +132,13 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
 
     # 2. Fetch deep Match Summary (Timeline, Stats, Lineups)
     summary_url = f"https://site.web.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event={game_id}"
-    try:
+    def fetch_summary():
         req2 = urllib.request.Request(summary_url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'})
         with urllib.request.urlopen(req2, timeout=5) as response:
-            summ_data = json.loads(response.read().decode('utf-8'))
+            return json.loads(response.read().decode('utf-8'))
+
+    try:
+        summ_data = await asyncio.to_thread(fetch_summary)
     except Exception as e:
         logger.error(f"Failed to fetch ESPN match summary: {e}")
         return None
@@ -128,7 +151,7 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
     boxscore = summ_data.get("boxscore", {})
     teams = boxscore.get("teams", [])
     for i, t in enumerate(teams):
-        side = "home" if i == 0 else "away"
+        side = "home" if i == espn_home_idx else "away"
         stats_dict = {s["name"]: s["displayValue"] for s in t.get("statistics", [])}
         parsed_stats.append(ParsedStat(
             team_side=side,
@@ -141,10 +164,17 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
             red_cards=int(stats_dict.get("redCards", "0")),
         ))
 
-    # Parse Lineups
+    # Parse Lineups and Formations
     rosters = summ_data.get("rosters", [])
+    home_formation = None
+    away_formation = None
     for i, r in enumerate(rosters):
-        side = "home" if i == 0 else "away"
+        side = "home" if i == espn_home_idx else "away"
+        if side == "home":
+            home_formation = r.get("formation")
+        else:
+            away_formation = r.get("formation")
+            
         for p in r.get("roster", []):
             parsed_lineups.append(ParsedLineup(
                 player_name=p["athlete"]["displayName"],
@@ -158,7 +188,12 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
     key_events = summ_data.get("keyEvents", [])
     for ev in key_events:
         etype = ev.get("type", {}).get("text", "").lower()
-        if "goal" in etype or "scored" in etype:
+        
+        is_penalty_goal = False
+        if "penalty" in etype or "pen" in etype:
+            is_penalty_goal = True
+
+        if "goal" in etype or "scored" in etype or is_penalty_goal:
             mapped_type = "goal"
         elif "yellow" in etype:
             mapped_type = "card_yellow"
@@ -174,7 +209,17 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
         
         participant = ev.get("participants", [{}])[0].get("athlete", {}).get("displayName", "Unknown")
         ev_team = ev.get("team", {}).get("displayName", "")
-        side = "away" if ev_team.lower() == away_team.lower() else "home"
+
+        def matches_team(target: str, names: list) -> bool:
+            target_lower = target.lower()
+            return any(target_lower == n or target_lower in n for n in names if n)
+
+        if matches_team(ev_team, final_team1_names):
+            side = "home" if espn_home_idx == 0 else "away"
+        elif matches_team(ev_team, final_team2_names):
+            side = "home" if espn_home_idx == 1 else "away"
+        else:
+            side = "away" if ev_team.lower() == away_team.lower() else "home"
         
         import json
         extra_data = {}
@@ -186,6 +231,9 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
             if len(parts) > 1:
                 extra_data["playerTwo"] = parts[1].get("athlete", {}).get("displayName", "Unknown")
         
+        if is_penalty_goal:
+            extra_data["isPenalty"] = True
+
         if ev.get("shootout"):
             extra_data["isShootoutPenalty"] = True
             
@@ -199,6 +247,18 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
             extra_info=extra
         ))
 
+        if mapped_type == "goal":
+            parts = ev.get("participants", [])
+            if len(parts) > 1:
+                assister = parts[1].get("athlete", {}).get("displayName", "Unknown")
+                parsed_events.append(ParsedEvent(
+                    type="assist",
+                    player_name=assister,
+                    team_side=side,
+                    minute=minute,
+                    extra_info=extra
+                ))
+
     logger.info(f"Successfully scraped live ESPN data for {home_team} vs {away_team}")
     return ParsedFifaMatch(
         home_score=home_score,
@@ -206,5 +266,7 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
         clock=match_clock,
         events=parsed_events,
         lineups=parsed_lineups,
-        stats=parsed_stats
+        stats=parsed_stats,
+        home_formation=home_formation,
+        away_formation=away_formation
     )

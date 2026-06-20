@@ -4,6 +4,7 @@ Scrape pipeline — orchestrates scraping and writes results to the DB.
 Called by the scheduler and admin manual-trigger endpoint.
 """
 import logging
+import asyncio
 import time
 from datetime import datetime, timezone
 from typing import Optional
@@ -86,11 +87,21 @@ async def run_scrape_pipeline() -> dict:
         # Get matches with a wikipedia_url that are live or finished recently
         # Get matches with a wikipedia_url that are live or finished recently
         # Prioritize live matches, then sort by kickoff
-        stmt = select(Match).where(Match.status.in_(["live", "finished"])).order_by(Match.status.desc(), Match.kickoff_utc.desc())
+        # Only select matches that are live, newly started, or finished recently (kickoff within last 6 hours)
+        # This keeps Wikipedia API hits minimal to avoid HTTP 429 rate limit bans
+        from datetime import datetime, timedelta
+        now_utc = datetime.utcnow()
+        six_hours_ago = now_utc - timedelta(hours=6)
+
+        stmt = select(Match).where(
+            (Match.status == "live") |
+            ((Match.status == "scheduled") & (Match.kickoff_utc <= now_utc)) |
+            ((Match.status == "finished") & (Match.kickoff_utc >= six_hours_ago))
+        ).order_by(Match.status.desc(), Match.kickoff_utc.desc())
         result_db = await db.execute(stmt)
         active_matches = result_db.scalars().all()
 
-        for match in active_matches[:20]:  # cap at 20 per cycle to avoid rate limiting
+        for match in active_matches:  # removed cap to fetch full backlog
             if not match.wikipedia_url:
                 continue
             title = match.wikipedia_url  # stored as page title, not full URL
@@ -109,6 +120,11 @@ async def run_scrape_pipeline() -> dict:
 
             # Overwrite Wikipedia data with ESPN live data if available
             fifa_match = await scrape_live_match(match.home_team, match.away_team, match.kickoff_utc)
+            
+            if not fifa_match and detail_result.get("error"):
+                logger.info(f"Skipping updates for {title} as both Wikipedia and live scraper failed.")
+                continue
+
             if fifa_match:
                 # Hybrid Truth: Check for score conflict
                 if fifa_match.home_score != match.home_score or fifa_match.away_score != match.away_score:
@@ -128,6 +144,8 @@ async def run_scrape_pipeline() -> dict:
                     match.home_score = fifa_match.home_score
                     match.away_score = fifa_match.away_score
                     match.clock = fifa_match.clock
+                    match.home_formation = fifa_match.home_formation
+                    match.away_formation = fifa_match.away_formation
 
                 # Trust FIFA for events
                 events_to_upsert = fifa_match.events
@@ -141,6 +159,10 @@ async def run_scrape_pipeline() -> dict:
             # 3. Upsert events into DB
             event_changes = await _upsert_events(db, match, events_to_upsert, source=source_for_events)
             total_changes += event_changes
+
+            # Gentle delay to avoid HTTP 429 Too Many Requests from Wikipedia
+            await asyncio.sleep(1.0)
+
 
             await _log_scrape(
                 db, "wikipedia", title, success=True, changes=event_changes,
