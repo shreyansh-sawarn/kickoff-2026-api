@@ -141,6 +141,7 @@ async def run_scrape_pipeline() -> dict:
 
                 # UPDATE SCORES AND CLOCK FROM LIVE DATA
                 if match.source != "override":
+                    match.status = fifa_match.status
                     match.home_score = fifa_match.home_score
                     match.away_score = fifa_match.away_score
                     match.clock = fifa_match.clock

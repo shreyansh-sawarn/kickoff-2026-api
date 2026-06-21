@@ -38,6 +38,7 @@ class ParsedFifaMatch:
     events: list[ParsedEvent]
     lineups: list[ParsedLineup]
     stats: list[ParsedStat]
+    status: str
     home_formation: Optional[str] = None
     away_formation: Optional[str] = None
 
@@ -73,6 +74,7 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
 
     game_id = None
     match_clock = None
+    match_status = "scheduled"
 
     for test_date in dates_to_try:
         scoreboard_url = f"https://site.web.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates={test_date}"
@@ -109,6 +111,15 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
                 short_detail = event.get("status", {}).get("type", {}).get("shortDetail")
                 if short_detail in ["HT", "FT", "FT-Pens", "AET"]:
                     match_clock = short_detail
+                
+                is_completed = event.get("status", {}).get("type", {}).get("completed", False)
+                espn_state = event.get("status", {}).get("type", {}).get("state", "pre").lower()
+                if is_completed or espn_state == "post":
+                    match_status = "finished"
+                elif espn_state == "in":
+                    match_status = "live"
+                else:
+                    match_status = "scheduled"
                     
                 if matches_team(home_team, team1_names):
                     espn_home_idx = 0
@@ -267,6 +278,7 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
         events=parsed_events,
         lineups=parsed_lineups,
         stats=parsed_stats,
+        status=match_status,
         home_formation=home_formation,
         away_formation=away_formation
     )
