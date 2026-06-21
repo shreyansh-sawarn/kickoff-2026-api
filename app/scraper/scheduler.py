@@ -103,30 +103,17 @@ async def start_scheduler() -> None:
     )
     
     # 10800 seconds = 3 hours
-    scheduler.add_job(
-        _soccerdata_scrape_job,
-        trigger=IntervalTrigger(seconds=10800),
-        id="soccerdata_scrape_job",
-        name="Soccerdata Post-Match Scraper",
-        replace_existing=True,
-        max_instances=1,
-    )
+    # DISABLED: soccerdata/FBref requires headless chrome and causes OOM kill on Fly.io's 256MB instances
+    # scheduler.add_job(
+    #     _soccerdata_scrape_job,
+    #     trigger=IntervalTrigger(seconds=10800),
+    #     id="soccerdata_scrape_job",
+    #     name="Soccerdata Post-Match Scraper",
+    #     replace_existing=True,
+    #     max_instances=1,
+    #     next_run_time=datetime.now(),
+    # )
     
-    async def _match_details_job() -> None:
-        from app.scraper.match_details import run_match_details_scraper
-        try:
-            await run_match_details_scraper()
-        except Exception as exc:
-            logger.error("Match details job failed: %s", exc, exc_info=True)
-            
-    scheduler.add_job(
-        _match_details_job,
-        trigger=IntervalTrigger(seconds=10800),
-        id="match_details_job",
-        name="Mock Match Details Scraper",
-        replace_existing=True,
-        max_instances=1,
-    )
 
     scheduler.start()
     logger.info("Scheduler started. Initial poll interval: %ds", initial_interval)

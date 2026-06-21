@@ -40,7 +40,7 @@ cp .env.example .env
 mkdir -p data
 
 # Run the server
-uv run uvicorn app.main:app --reload --port 8000
+uv run uvicorn app.main:app --reload --reload-exclude "data/*" --port 8000
 ```
 
 The server starts at `http://localhost:8000`.

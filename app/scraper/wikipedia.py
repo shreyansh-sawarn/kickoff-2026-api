@@ -138,6 +138,9 @@ async def fetch_wikitext(page_title: str) -> Optional[str]:
     Returns None on any failure.
     Uses urllib because Wikipedia WAF sometimes blocks httpx.
     """
+    # Added sleep to gently fetch pages and avoid HTTP 429 errors from Wikipedia
+    await asyncio.sleep(1.5)
+
     params = {
         "action": "parse",
         "page": page_title,

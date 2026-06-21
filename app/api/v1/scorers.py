@@ -74,7 +74,7 @@ async def yellow_cards(
     db: AsyncSession = Depends(get_db),
 ):
     """Players with most yellow cards."""
-    rows = await _aggregate_events(db, ["yellow", "yellow_red"], limit, team)
+    rows = await _aggregate_events(db, ["yellow", "yellow_red", "card_yellow"], limit, team)
     return {"count": len(rows), "yellow_cards": rows}
 
 
@@ -85,7 +85,7 @@ async def red_cards(
     db: AsyncSession = Depends(get_db),
 ):
     """Players with red cards (straight red or second yellow)."""
-    rows = await _aggregate_events(db, ["red", "yellow_red"], limit, team)
+    rows = await _aggregate_events(db, ["red", "yellow_red", "card_red"], limit, team)
     return {"count": len(rows), "red_cards": rows}
 
 

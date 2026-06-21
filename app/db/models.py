@@ -39,6 +39,8 @@ class Match(Base):
     source: Mapped[Optional[str]] = mapped_column(String)  # wikipedia|fifa|override
     wikipedia_url: Mapped[Optional[str]] = mapped_column(Text)
     last_scraped_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    home_formation: Mapped[Optional[str]] = mapped_column(String)
+    away_formation: Mapped[Optional[str]] = mapped_column(String)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now(), onupdate=func.now()
