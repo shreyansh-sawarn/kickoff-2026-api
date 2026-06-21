@@ -226,7 +226,7 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
         if "+" in ev_clock:
             extra_data["clockDisplay"] = ev_clock
             
-        if mapped_type == "substitution":
+        if mapped_type in ("substitution", "goal"):
             parts = ev.get("participants", [])
             if len(parts) > 1:
                 extra_data["playerTwo"] = parts[1].get("athlete", {}).get("displayName", "Unknown")
