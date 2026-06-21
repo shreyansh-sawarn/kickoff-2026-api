@@ -188,7 +188,7 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
             
         for p in r.get("roster", []):
             parsed_lineups.append(ParsedLineup(
-                player_name=p["athlete"]["displayName"],
+                player_name=p["athlete"]["displayName"].strip() if p.get("athlete", {}).get("displayName") else "",
                 team_side=side,
                 position=p.get("position", {}).get("name"),
                 jersey_number=p.get("jersey"),
@@ -219,6 +219,8 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
         minute = int(ev_clock.split("+")[0]) if "+" in ev_clock else (int(ev_clock) if ev_clock else 0)
         
         participant = ev.get("participants", [{}])[0].get("athlete", {}).get("displayName", "Unknown")
+        if participant:
+            participant = participant.strip()
         ev_team = ev.get("team", {}).get("displayName", "")
 
         def matches_team(target: str, names: list) -> bool:
@@ -240,7 +242,8 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
         if mapped_type in ("substitution", "goal"):
             parts = ev.get("participants", [])
             if len(parts) > 1:
-                extra_data["playerTwo"] = parts[1].get("athlete", {}).get("displayName", "Unknown")
+                p2 = parts[1].get("athlete", {}).get("displayName", "Unknown")
+                extra_data["playerTwo"] = p2.strip() if p2 else "Unknown"
         
         if is_penalty_goal:
             extra_data["isPenalty"] = True
@@ -262,6 +265,8 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
             parts = ev.get("participants", [])
             if len(parts) > 1:
                 assister = parts[1].get("athlete", {}).get("displayName", "Unknown")
+                if assister:
+                    assister = assister.strip()
                 parsed_events.append(ParsedEvent(
                     type="assist",
                     player_name=assister,
