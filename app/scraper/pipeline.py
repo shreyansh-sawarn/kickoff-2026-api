@@ -96,7 +96,11 @@ async def run_scrape_pipeline() -> dict:
         stmt = select(Match).where(
             (Match.status == "live") |
             ((Match.status == "scheduled") & (Match.kickoff_utc <= now_utc)) |
-            ((Match.status == "finished") & (Match.kickoff_utc >= six_hours_ago))
+            ((Match.status == "finished") & (
+                (Match.kickoff_utc >= six_hours_ago) |
+                (Match.last_scraped_at == None) |
+                (Match.last_scraped_at < Match.kickoff_utc)
+            ))
         ).order_by(Match.status.desc(), Match.kickoff_utc.desc())
         result_db = await db.execute(stmt)
         active_matches = result_db.scalars().all()
@@ -160,6 +164,8 @@ async def run_scrape_pipeline() -> dict:
             # 3. Upsert events into DB
             event_changes = await _upsert_events(db, match, events_to_upsert, source=source_for_events)
             total_changes += event_changes
+
+            match.last_scraped_at = datetime.now(timezone.utc)
 
             # Gentle delay to avoid HTTP 429 Too Many Requests from Wikipedia
             await asyncio.sleep(1.0)
