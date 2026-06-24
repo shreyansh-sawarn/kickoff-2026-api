@@ -201,7 +201,7 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
         etype = ev.get("type", {}).get("text", "").lower()
         
         is_penalty_goal = False
-        if "penalty" in etype or "pen" in etype:
+        if ("penalty" in etype or "pen" in etype) and not any(x in etype for x in ["miss", "save", "fail"]):
             is_penalty_goal = True
 
         if "goal" in etype or "scored" in etype or is_penalty_goal:
