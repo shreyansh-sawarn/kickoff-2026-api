@@ -138,8 +138,9 @@ async def fetch_wikitext(page_title: str) -> Optional[str]:
     Returns None on any failure.
     Uses urllib because Wikipedia WAF sometimes blocks httpx.
     """
-    # Added sleep to gently fetch pages and avoid HTTP 429 errors from Wikipedia
-    await asyncio.sleep(1.5)
+    import random
+    # Added randomized jitter sleep to mimic human browsing behavior
+    await asyncio.sleep(random.uniform(1.5, 3.5))
 
     params = {
         "action": "parse",
@@ -153,18 +154,26 @@ async def fetch_wikitext(page_title: str) -> Optional[str]:
     
     def _fetch():
         req = urllib.request.Request(url, headers={"User-Agent": settings.wikipedia_user_agent})
-        with urllib.request.urlopen(req, timeout=30.0) as resp:
+        with urllib.request.urlopen(req, timeout=15.0) as resp:
             return json.loads(resp.read().decode("utf-8"))
             
-    try:
-        data = await asyncio.to_thread(_fetch)
-        if "error" in data:
-            logger.warning("MediaWiki API error for %s: %s", page_title, data["error"])
-            return None
-        return data["parse"]["wikitext"]
-    except Exception as exc:
-        logger.error("Failed to fetch wikitext for %s: %s", page_title, exc)
-        return None
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            data = await asyncio.to_thread(_fetch)
+            if "error" in data:
+                logger.warning("MediaWiki API error for %s: %s", page_title, data["error"])
+                return None
+            return data["parse"]["wikitext"]
+        except Exception as exc:
+            if attempt == max_retries - 1:
+                logger.error("Failed to fetch wikitext for %s after %d attempts: %s", page_title, max_retries, exc)
+                return None
+            
+            # Exponential backoff + jitter (e.g. 2s, 4s + random jitter)
+            sleep_time = (2 ** attempt) * 2 + random.uniform(1.0, 3.0)
+            logger.warning("Fetch failed for %s (attempt %d/%d). Retrying in %.2fs: %s", page_title, attempt + 1, max_retries, sleep_time, exc)
+            await asyncio.sleep(sleep_time)
 
 
 # ---------------------------------------------------------------------------

@@ -42,46 +42,52 @@ async def run_scrape_pipeline() -> dict:
 
     async with AsyncSessionLocal() as db:
         # --- Step 1: Group stage ---
-        result = await scrape_group_stage(use_wc2022_for_testing=False)
-        if result["error"]:
-            await _log_scrape(db, "wikipedia", result.get("page", "group_stage"),
-                              success=False, changes=0, error=result["error"])
-            await db.commit()
-            return {"changes": 0, "error": result["error"]}
-
-        matches: list[ParsedMatch] = result["matches"]
-        group_changes = await _upsert_matches(db, matches)
-        total_changes += group_changes
-
-        await _log_scrape(
-            db, "wikipedia", result.get("page", "group_stage"),
-            success=True, changes=group_changes,
-            duration_ms=result.get("elapsed_ms")
-        )
+        try:
+            result = await scrape_group_stage(use_wc2022_for_testing=False)
+            if result["error"]:
+                await _log_scrape(db, "wikipedia", result.get("page", "group_stage"),
+                                  success=False, changes=0, error=result["error"])
+            else:
+                matches: list[ParsedMatch] = result["matches"]
+                group_changes = await _upsert_matches(db, matches)
+                total_changes += group_changes
+                await _log_scrape(
+                    db, "wikipedia", result.get("page", "group_stage"),
+                    success=True, changes=group_changes,
+                    duration_ms=result.get("elapsed_ms")
+                )
+        except Exception as e:
+            logger.error("Failed to run Step 1 group stage summary: %s", e)
 
         # --- Step 1b: Knockout stage ---
-        from app.scraper.wikipedia import fetch_wikitext, WC2026_KNOCKOUT_PAGE, parse_knockout_stage_wikitext
-        ko_wikitext = await fetch_wikitext(WC2026_KNOCKOUT_PAGE)
-        if ko_wikitext:
-            ko_matches = parse_knockout_stage_wikitext(ko_wikitext)
-            ko_changes = await _upsert_matches(db, ko_matches)
-            total_changes += ko_changes
-            await _log_scrape(
-                db, "wikipedia", WC2026_KNOCKOUT_PAGE,
-                success=True, changes=ko_changes
-            )
+        try:
+            from app.scraper.wikipedia import fetch_wikitext, WC2026_KNOCKOUT_PAGE, parse_knockout_stage_wikitext
+            ko_wikitext = await fetch_wikitext(WC2026_KNOCKOUT_PAGE)
+            if ko_wikitext:
+                ko_matches = parse_knockout_stage_wikitext(ko_wikitext)
+                ko_changes = await _upsert_matches(db, ko_matches)
+                total_changes += ko_changes
+                await _log_scrape(
+                    db, "wikipedia", WC2026_KNOCKOUT_PAGE,
+                    success=True, changes=ko_changes
+                )
+        except Exception as e:
+            logger.error("Failed to run Step 1b knockout summary: %s", e)
 
         # --- Step 1c: Final match ---
-        final_wikitext = await fetch_wikitext("2026_FIFA_World_Cup_final")
-        if final_wikitext:
-            final_matches = parse_knockout_stage_wikitext(final_wikitext)
-            if final_matches:
-                final_changes = await _upsert_matches(db, final_matches)
-                total_changes += final_changes
-                await _log_scrape(
-                    db, "wikipedia", "2026_FIFA_World_Cup_final",
-                    success=True, changes=final_changes
-                )
+        try:
+            final_wikitext = await fetch_wikitext("2026_FIFA_World_Cup_final")
+            if final_wikitext:
+                final_matches = parse_knockout_stage_wikitext(final_wikitext)
+                if final_matches:
+                    final_changes = await _upsert_matches(db, final_matches)
+                    total_changes += final_changes
+                    await _log_scrape(
+                        db, "wikipedia", "2026_FIFA_World_Cup_final",
+                        success=True, changes=final_changes
+                    )
+        except Exception as e:
+            logger.error("Failed to run Step 1c final summary: %s", e)
 
         # --- Step 2: Individual match pages for live/recent matches ---
         # Get matches with a wikipedia_url that are live or finished recently
@@ -96,7 +102,11 @@ async def run_scrape_pipeline() -> dict:
         stmt = select(Match).where(
             (Match.status == "live") |
             ((Match.status == "scheduled") & (Match.kickoff_utc <= now_utc)) |
-            ((Match.status == "finished") & (Match.kickoff_utc >= six_hours_ago))
+            ((Match.status == "finished") & (
+                (Match.kickoff_utc >= six_hours_ago) |
+                (Match.last_scraped_at == None) |
+                (Match.last_scraped_at < Match.kickoff_utc)
+            ))
         ).order_by(Match.status.desc(), Match.kickoff_utc.desc())
         result_db = await db.execute(stmt)
         active_matches = result_db.scalars().all()
@@ -161,8 +171,10 @@ async def run_scrape_pipeline() -> dict:
             event_changes = await _upsert_events(db, match, events_to_upsert, source=source_for_events)
             total_changes += event_changes
 
+            match.last_scraped_at = datetime.now(timezone.utc)
+
             # Gentle delay to avoid HTTP 429 Too Many Requests from Wikipedia
-            await asyncio.sleep(1.0)
+            await asyncio.sleep(3.0)
 
 
             await _log_scrape(
@@ -216,7 +228,6 @@ async def _upsert_matches(db: AsyncSession, parsed: list[ParsedMatch]) -> int:
                 away_score=pm.away_score,
                 source="wikipedia",
                 wikipedia_url=pm.wikipedia_title,
-                last_scraped_at=datetime.now(timezone.utc),
             )
             db.add(match)
             changes += 1
@@ -230,11 +241,11 @@ async def _upsert_matches(db: AsyncSession, parsed: list[ParsedMatch]) -> int:
                 if existing.kickoff_utc != pm.kickoff_utc and pm.kickoff_utc is not None:
                     existing.kickoff_utc = pm.kickoff_utc
                     updated = True
-
+ 
                 if existing.stage != pm.stage:
                     existing.stage = pm.stage
                     updated = True
-
+ 
                 score_changed = False
                 if existing.home_score != pm.home_score:
                     existing.home_score = pm.home_score
@@ -250,14 +261,13 @@ async def _upsert_matches(db: AsyncSession, parsed: list[ParsedMatch]) -> int:
                     existing.status = pm.status
                     updated = True
                     status_changed = True
-
+ 
                 if existing.wikipedia_url != pm.wikipedia_title:
                     existing.wikipedia_url = pm.wikipedia_title
                     updated = True
                     
                 if updated:
                     existing.source = "wikipedia"
-                    existing.last_scraped_at = datetime.now(timezone.utc)
                     changes += 1
 
                 # Dispatch Webhooks
