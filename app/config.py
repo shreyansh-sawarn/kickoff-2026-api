@@ -31,7 +31,7 @@ class Settings:
     poll_interval_night: int = int(os.getenv("POLL_INTERVAL_NIGHT_SECONDS", "900"))
     wikipedia_user_agent: str = os.getenv(
         "WIKIPEDIA_USER_AGENT",
-        "kickoff-2026-api/1.0 (contact@example.com)",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     )
 
     # CORS

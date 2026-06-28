@@ -717,9 +717,14 @@ def _parse_card_events(raw: str, team_side: str, card_type: str) -> list[ParsedE
 
     return events
 
-def parse_knockout_stage_wikitext(wikitext: str, year: int = 2026) -> list[ParsedMatch]:
+def parse_knockout_stage_wikitext(wikitext: str, year: int = 2026, default_stage: str = "knockout") -> list[ParsedMatch]:
     matches: list[ParsedMatch] = []
     
+    # Find all level 2 section headers: \n== Header ==\n
+    headers = []
+    for m in re.finditer(r"\n==\s*([^=]+?)\s*==\s*\n", wikitext):
+        headers.append((m.start(), m.group(1).strip()))
+        
     football_box_starts = list(re.finditer(r"\{\{(?:#invoke:)?(?:F|f)ootball box", wikitext, re.IGNORECASE))
     print(f"DEBUG: Found {len(football_box_starts)} football box starts")
     
@@ -739,10 +744,29 @@ def parse_knockout_stage_wikitext(wikitext: str, year: int = 2026) -> list[Parse
         block = wikitext[start:end]
         match = _parse_football_box_template(block, year)
         if match:
-            # We don't have group_name for knockout matches, but we should identify stage
-            # Let's map it based on the section header or match number
-            # For simplicity, we just set it as knockout and let pipeline handle ID
-            match.stage = "knockout"
+            # Find the last level 2 header before this template
+            current_header = None
+            for h_pos, h_text in headers:
+                if h_pos < start:
+                    current_header = h_text
+                else:
+                    break
+            
+            stage = default_stage
+            if current_header:
+                h = current_header.lower()
+                if "round of 32" in h:
+                    stage = "r32"
+                elif "round of 16" in h:
+                    stage = "r16"
+                elif "quarter" in h:
+                    stage = "qf"
+                elif "semi" in h:
+                    stage = "sf"
+                elif "third place" in h or "final" in h:
+                    stage = "final"
+                    
+            match.stage = stage
             match.group_name = None
             matches.append(match)
         else:
@@ -757,7 +781,7 @@ def parse_knockout_stage_wikitext(wikitext: str, year: int = 2026) -> list[Parse
 # ---------------------------------------------------------------------------
 
 
-async def scrape_group_stage(use_wc2022_for_testing: bool = False) -> dict:
+async def scrape_group_stage() -> dict:
     """
     Scrape the group stage summary page and return parsed matches + standings.
     Returns a dict with keys: 'matches', 'error'.
@@ -765,19 +789,15 @@ async def scrape_group_stage(use_wc2022_for_testing: bool = False) -> dict:
     start = time.monotonic()
     all_matches = []
     
-    if use_wc2022_for_testing:
-        pages = [WC2022_GROUP_STAGE_PAGE]
-        year = 2022
-    else:
-        pages = [
-            "2026_FIFA_World_Cup_Group_A", "2026_FIFA_World_Cup_Group_B",
-            "2026_FIFA_World_Cup_Group_C", "2026_FIFA_World_Cup_Group_D",
-            "2026_FIFA_World_Cup_Group_E", "2026_FIFA_World_Cup_Group_F",
-            "2026_FIFA_World_Cup_Group_G", "2026_FIFA_World_Cup_Group_H",
-            "2026_FIFA_World_Cup_Group_I", "2026_FIFA_World_Cup_Group_J",
-            "2026_FIFA_World_Cup_Group_K", "2026_FIFA_World_Cup_Group_L"
-        ]
-        year = 2026
+    pages = [
+        "2026_FIFA_World_Cup_Group_A", "2026_FIFA_World_Cup_Group_B",
+        "2026_FIFA_World_Cup_Group_C", "2026_FIFA_World_Cup_Group_D",
+        "2026_FIFA_World_Cup_Group_E", "2026_FIFA_World_Cup_Group_F",
+        "2026_FIFA_World_Cup_Group_G", "2026_FIFA_World_Cup_Group_H",
+        "2026_FIFA_World_Cup_Group_I", "2026_FIFA_World_Cup_Group_J",
+        "2026_FIFA_World_Cup_Group_K", "2026_FIFA_World_Cup_Group_L"
+    ]
+    year = 2026
 
     for page in pages:
         wikitext = await fetch_wikitext(page)
