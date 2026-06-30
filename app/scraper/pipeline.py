@@ -43,7 +43,7 @@ async def run_scrape_pipeline() -> dict:
     async with AsyncSessionLocal() as db:
         # --- Step 1: Group stage ---
         try:
-            result = await scrape_group_stage(use_wc2022_for_testing=False)
+            result = await scrape_group_stage()
             if result["error"]:
                 await _log_scrape(db, "wikipedia", result.get("page", "group_stage"),
                                   success=False, changes=0, error=result["error"])
@@ -59,7 +59,22 @@ async def run_scrape_pipeline() -> dict:
         except Exception as e:
             logger.error("Failed to run Step 1 group stage summary: %s", e)
 
-        # --- Step 1b: Knockout stage ---
+        # --- Step 1b: Knockout stage (Round of 32) ---
+        try:
+            from app.scraper.wikipedia import fetch_wikitext, parse_knockout_stage_wikitext
+            r32_wikitext = await fetch_wikitext("2026_FIFA_World_Cup_round_of_32")
+            if r32_wikitext:
+                r32_matches = parse_knockout_stage_wikitext(r32_wikitext, default_stage="r32")
+                r32_changes = await _upsert_matches(db, r32_matches)
+                total_changes += r32_changes
+                await _log_scrape(
+                    db, "wikipedia", "2026_FIFA_World_Cup_round_of_32",
+                    success=True, changes=r32_changes
+                )
+        except Exception as e:
+            logger.error("Failed to run Step 1b Round of 32 summary: %s", e)
+
+        # --- Step 1c: Knockout stage (Rest of matches) ---
         try:
             from app.scraper.wikipedia import fetch_wikitext, WC2026_KNOCKOUT_PAGE, parse_knockout_stage_wikitext
             ko_wikitext = await fetch_wikitext(WC2026_KNOCKOUT_PAGE)
@@ -72,13 +87,13 @@ async def run_scrape_pipeline() -> dict:
                     success=True, changes=ko_changes
                 )
         except Exception as e:
-            logger.error("Failed to run Step 1b knockout summary: %s", e)
+            logger.error("Failed to run Step 1c knockout summary: %s", e)
 
-        # --- Step 1c: Final match ---
+        # --- Step 1d: Final match ---
         try:
             final_wikitext = await fetch_wikitext("2026_FIFA_World_Cup_final")
             if final_wikitext:
-                final_matches = parse_knockout_stage_wikitext(final_wikitext)
+                final_matches = parse_knockout_stage_wikitext(final_wikitext, default_stage="final")
                 if final_matches:
                     final_changes = await _upsert_matches(db, final_matches)
                     total_changes += final_changes
@@ -87,10 +102,9 @@ async def run_scrape_pipeline() -> dict:
                         success=True, changes=final_changes
                     )
         except Exception as e:
-            logger.error("Failed to run Step 1c final summary: %s", e)
+            logger.error("Failed to run Step 1d final summary: %s", e)
 
         # --- Step 2: Individual match pages for live/recent matches ---
-        # Get matches with a wikipedia_url that are live or finished recently
         # Get matches with a wikipedia_url that are live or finished recently
         # Prioritize live matches, then sort by kickoff
         # Only select matches that are live, newly started, or finished recently (kickoff within last 6 hours)
@@ -207,9 +221,41 @@ async def _upsert_matches(db: AsyncSession, parsed: list[ParsedMatch]) -> int:
     for pm in parsed:
         match_id = _make_match_id(pm)
 
+        existing: Optional[Match] = None
         stmt = select(Match).where(Match.id == match_id)
         result = await db.execute(stmt)
-        existing: Optional[Match] = result.scalar_one_or_none()
+        existing = result.scalar_one_or_none()
+
+        if existing is None and pm.stage != "group" and pm.kickoff_utc is not None:
+            # Knockout match: look up by kickoff time to match placeholder slots
+            stmt = select(Match).where(
+                (Match.kickoff_utc == pm.kickoff_utc) &
+                (Match.stage.in_(["r32", "r16", "qf", "sf", "final", "knockout"]))
+            )
+            result = await db.execute(stmt)
+            matches = result.scalars().all()
+            if matches:
+                def is_placeholder_team(name):
+                    n = name.lower()
+                    return "winner" in n or "runner" in n or "loser" in n or "3rd" in n or "group" in n
+                
+                placeholders = [m for m in matches if is_placeholder_team(m.home_team) or is_placeholder_team(m.away_team)]
+                existing = placeholders[0] if placeholders else matches[0]
+                
+                # Delete any other duplicate matches at this kickoff time to clean up
+                for m in matches:
+                    if m.id != existing.id:
+                        await db.delete(m)
+                
+                if existing.id != match_id:
+                    old_id = existing.id
+                    existing.id = match_id
+                    
+                    from sqlalchemy import update
+                    await db.execute(update(Event).where(Event.match_id == old_id).values(match_id=match_id))
+                    await db.execute(update(Lineup).where(Lineup.match_id == old_id).values(match_id=match_id))
+                    await db.execute(update(MatchStat).where(MatchStat.match_id == old_id).values(match_id=match_id))
+                    changes += 1
 
         if existing is None:
             # New match
@@ -238,6 +284,15 @@ async def _upsert_matches(db: AsyncSession, parsed: list[ParsedMatch]) -> int:
             if existing.source != "override":
                 updated = False
                 
+                if existing.home_team != pm.home_team and pm.home_team:
+                    existing.home_team = pm.home_team
+                    existing.home_team_code = _team_code(pm.home_team)
+                    updated = True
+                if existing.away_team != pm.away_team and pm.away_team:
+                    existing.away_team = pm.away_team
+                    existing.away_team_code = _team_code(pm.away_team)
+                    updated = True
+
                 if existing.kickoff_utc != pm.kickoff_utc and pm.kickoff_utc is not None:
                     existing.kickoff_utc = pm.kickoff_utc
                     updated = True

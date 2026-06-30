@@ -75,6 +75,9 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
     game_id = None
     match_clock = None
     match_status = "scheduled"
+    espn_home_idx = 0
+    final_team1_names = []
+    final_team2_names = []
 
     for test_date in dates_to_try:
         scoreboard_url = f"https://site.web.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates={test_date}"
@@ -273,6 +276,40 @@ async def scrape_live_match(home_team: str, away_team: str, match_date: Optional
                     team_side=side,
                     minute=minute,
                     extra_info=extra
+                ))
+
+    # Parse Shootout Penalties if available
+    shootout_data = summ_data.get("shootout", [])
+    if shootout_data and isinstance(shootout_data, list):
+        for team_shootout in shootout_data:
+            ev_team = team_shootout.get("team", "")
+            
+            # Match shootout team names to home or away
+            if matches_team(ev_team, final_team1_names):
+                side = "home" if espn_home_idx == 0 else "away"
+            elif matches_team(ev_team, final_team2_names):
+                side = "home" if espn_home_idx == 1 else "away"
+            else:
+                side = "away" if ev_team.lower() == away_team.lower() else "home"
+                
+            shots = team_shootout.get("shots", [])
+            for shot in shots:
+                player_name = shot.get("player", "Unknown")
+                shot_number = shot.get("shotNumber")
+                did_score = shot.get("didScore", False)
+                
+                extra_data = {
+                    "isShootoutPenalty": True,
+                    "didScore": did_score,
+                    "shotNumber": shot_number
+                }
+                
+                parsed_events.append(ParsedEvent(
+                    type="shootout_penalty",
+                    player_name=player_name,
+                    team_side=side,
+                    minute=120,  # post-match shootout occurs at 120'
+                    extra_info=json.dumps(extra_data)
                 ))
 
     logger.info(f"Successfully scraped live ESPN data for {home_team} vs {away_team}")
