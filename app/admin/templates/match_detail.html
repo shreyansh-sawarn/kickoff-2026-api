@@ -115,9 +115,19 @@
                                     'red': '🟥',
                                     'yellow_red': '🟨🟥',
                                     'assist': '👟',
-                                    'sub': '🔄'
+                                    'sub': '🔄',
+                                    'shootout_penalty': '🎯'
                                 } %}
-                                {{ type_icons.get(event.type, '•') }} {{ event.type }}
+                                {% if event.type == 'shootout_penalty' %}
+                                    🎯 Shootout Pen
+                                    {% if event.extra_info and 'didScore": true' in event.extra_info %}
+                                        <span style="background-color: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 4px; font-weight: 600;">Scored</span>
+                                    {% else %}
+                                        <span style="background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 4px; font-weight: 600;">Missed</span>
+                                    {% endif %}
+                                {% else %}
+                                    {{ type_icons.get(event.type, '•') }} {{ event.type }}
+                                {% endif %}
                             </td>
                             <td>{{ event.player_name or '—' }}</td>
                             <td class="text-muted text-sm">{{ event.team_code or '—' }}</td>
