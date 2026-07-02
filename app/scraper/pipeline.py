@@ -115,7 +115,7 @@ async def run_scrape_pipeline() -> dict:
 
         stmt = select(Match).where(
             (Match.status == "live") |
-            ((Match.status == "scheduled") & (Match.kickoff_utc <= now_utc)) |
+            ((Match.status == "scheduled") & (Match.kickoff_utc <= now_utc + timedelta(hours=1))) |
             ((Match.status == "finished") & (
                 (Match.kickoff_utc >= six_hours_ago) |
                 (Match.last_scraped_at == None) |
